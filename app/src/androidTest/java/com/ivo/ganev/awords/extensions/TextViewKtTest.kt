@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.text.getSpans
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.amshove.kluent.shouldBeEqualTo
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -18,7 +17,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextViewKtTest {
     @Test
-    fun testToNoSpaceClickableSpan() {
+    fun testSetClickableSpanToAllWords() {
         val selectionStart = 6
         // selectionEnd is the buffer offset meaning we have to compensate +1
         val selectionEnd = 12
@@ -32,7 +31,7 @@ class TextViewKtTest {
         val text = original.apply {
             replace(selectionStart, selectionEnd, replacement)
             clearSpans()
-            toNoSpaceClickableSpan {
+            setClickableSpanToAllWords {
                 object : ClickableSpan() {
                     override fun onClick(widget: View) {}
                 }

@@ -4,10 +4,10 @@ import android.text.Spannable
 import android.text.style.ClickableSpan
 
 /**
- * Creates clickable span on the entire spannable excluding
- * "space" characters
+ * It's a mutating function that sets clickable span on each word it finds inside
+ * the receiver [Spannable] excluding "space" characters.
  * */
-fun Spannable.toNoSpaceClickableSpan(clickableSpan: ()-> ClickableSpan) {
+fun Spannable.setClickableSpanToAllWords(clickableSpan: ()->ClickableSpan) {
     val noSpaceMatch = matchNoSpace()
     while (noSpaceMatch.find()) {
         setSpan(
