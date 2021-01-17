@@ -29,7 +29,7 @@ class TextViewWordMutator :
      * This listener will be notified when any part of the TextView's
      * text gets clicked.
      * */
-    lateinit var onWordClickedListener: OnWordClickedListener
+    var onWordClickedListener: OnWordClickedListener? = null
 
     /**
      * With spannable factory we avoid object creation
@@ -49,7 +49,7 @@ class TextViewWordMutator :
 
     private fun clickableSpan() = object : ClickableSpan() {
         override fun onClick(widget: View) {
-            onWordClickedListener.onWordClick(selectedWord())
+            onWordClickedListener?.onWordClick(selectedWord())
         }
 
         override fun updateDrawState(ds: TextPaint) {
