@@ -1,7 +1,9 @@
 package com.ivo.ganev.awords
 
+import android.net.Uri
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class MainViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+    val userPickedFileUri = MutableLiveData<Uri>()
 }

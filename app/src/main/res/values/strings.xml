@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AWords</string>
+    <string name="home_button_choose_file">Open File</string>
+    <string name="home_button_copy_text">Copy Text</string>
 </resources>
