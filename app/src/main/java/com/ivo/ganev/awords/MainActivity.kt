@@ -1,11 +1,9 @@
 package com.ivo.ganev.awords
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ivo.ganev.awords.databinding.ActivityMainBinding
 import com.ivo.ganev.awords.view.TextViewClickable
-import timber.log.Timber
 
 class MainActivity : AppCompatActivity(R.layout.activity_main), TextViewClickable.OnWordClickedListener {
     lateinit var binding: ActivityMainBinding
