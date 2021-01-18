@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
-    <com.ivo.ganev.awords.view.TextViewWordMutator
-        android:id="@+id/tv_mut"
+    <Button
+        android:id="@+id/button_open_file"
         android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello World!" />
+        android:layout_height="wrap_content"
+        android:text="Open File" />
 
 </FrameLayout>
