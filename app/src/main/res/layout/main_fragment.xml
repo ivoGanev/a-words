@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
-    <TextView
+    <com.ivo.ganev.awords.view.TextViewWordMutator
+        android:id="@+id/tv_mut"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
