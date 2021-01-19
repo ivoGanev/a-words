@@ -5,4 +5,6 @@
     <string name="synonyms">Synonyms</string>
     <string name="antonyms">Antonyms</string>
     <string name="rhymes">Rhymes</string>
+    <string name="document_provider_root_summary">Document provider root summary.</string>
+    <string name="document_provider_title">My Documents</string>
 </resources>
