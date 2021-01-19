@@ -58,9 +58,6 @@ class AppDocumentProvider : DocumentsProvider() {
                 "Failed to create document with name $displayName and documentId $parentDocumentId"
             )
         }
-
-        println(mimeType)
-        println("Creating file: " + getDocIdForFile(file))
         return getDocIdForFile(file)
     }
 
@@ -103,7 +100,7 @@ class AppDocumentProvider : DocumentsProvider() {
 
             // This document id cannot change after it's shared.
             add(Root.COLUMN_DOCUMENT_ID, getDocIdForFile(baseDir))
-
+            println( getDocIdForFile(baseDir))
             // The child MIME types are used to filter the roots and only present to the
             // user those roots that contain the desired type somewhere in their file hierarchy.
             add(Root.COLUMN_MIME_TYPES, mimeTypes)
@@ -134,7 +131,6 @@ class AppDocumentProvider : DocumentsProvider() {
      * */
     private fun includeFile(cursor: MatrixCursor, file: File) {
         val docId = getDocIdForFile(file)
-        println("Including file in cursor: $docId")
 
         val isDirectory = file.isDirectory
         val isTextFile = file.name.endsWith(".txt")
@@ -197,7 +193,7 @@ class AppDocumentProvider : DocumentsProvider() {
     }
 
     /**
-     * Translates your file to document ID
+     * Translates your file to document ID 
      * */
     private fun getDocIdForFile(file: File): String {
         var absolutePath: String = file.absolutePath
