@@ -7,7 +7,20 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.ivo.ganev.awords.MainFragment"
-        android:label="Main Fragment"
-        tools:layout="@layout/main_fragment" />
+        android:name="com.ivo.ganev.awords.ui.main_activity.fragments.MainFragment"
+        android:label="Welcome"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_editorFragment"
+            app:destination="@id/editorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editorFragment"
+        android:name="com.ivo.ganev.awords.ui.main_activity.fragments.EditorFragment"
+        android:label="Editor"
+        tools:layout="@layout/fragment_editor" >
+        <argument
+            android:name="content"
+            app:argType="string" />
+    </fragment>
 </navigation>
