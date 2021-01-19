@@ -7,9 +7,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ivo.ganev.awords.databinding.ActivityTestIoBinding
 import com.ivo.ganev.awords.extensions.isWithId
+import com.ivo.ganev.awords.view.TextViewWordMutator
 import java.io.*
 
-class ActivityTestIo : AppCompatActivity(), View.OnClickListener {
+class ActivityTestIo : AppCompatActivity(), View.OnClickListener,
+    TextViewWordMutator.OnWordClickedListener {
 
     enum class RequestCode {
         OPEN,
@@ -27,6 +29,7 @@ class ActivityTestIo : AppCompatActivity(), View.OnClickListener {
         binding.buttonOpenFile.setOnClickListener(this)
         binding.buttonSaveFile.setOnClickListener(this)
         binding.buttonCreateFile.setOnClickListener(this)
+        binding.tvSimpleText.onWordClickedListener = this
     }
 
     override fun onClick(clickedView: View?) {
@@ -57,28 +60,32 @@ class ActivityTestIo : AppCompatActivity(), View.OnClickListener {
             val stream = contentResolver.openInputStream(data!!)
             val reader = BufferedReader(InputStreamReader(stream))
             // TODO display probably inside the view model
-            println(reader.readText())
+            binding.tvSimpleText.setClickableText(reader.readText())
+            Toast.makeText(
+                this@ActivityTestIo,
+                "Loaded from: $data",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
     private fun saveFile(resultData: Intent) {
         try {
             // TODO this needs to be inside a coroutine
-            val parcelFileDescriptor = contentResolver.openFileDescriptor(resultData.data!!, "w")
+            val uri = resultData.data ?: return
+
+            val parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "w")
             val outputStream = FileOutputStream(parcelFileDescriptor?.fileDescriptor)
             val string = binding.tvSimpleText.text.toString()
             outputStream.write(string.encodeToByteArray())
             outputStream.close()
             parcelFileDescriptor?.close()
-            Toast.makeText(
-                this,
-                "File with URI: ${resultData.data!!} successfully saved.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "File with URI: $uri successfully saved.", Toast.LENGTH_LONG)
+                .show()
         } catch (ex: FileNotFoundException) {
-
+            TODO()
         } catch (ex: IOException) {
-
+            TODO()
         }
     }
 
@@ -88,7 +95,18 @@ class ActivityTestIo : AppCompatActivity(), View.OnClickListener {
             when (requestCode) {
                 RequestCode.OPEN.ordinal -> loadFile(resultData)
                 RequestCode.SAVE.ordinal -> saveFile(resultData)
+                RequestCode.CREATE.ordinal -> createFile(resultData)
             }
+    }
+
+    private fun createFile(resultData: Intent) {
+        val uri = resultData.data ?: return
+        Toast.makeText(this, "File with URI: $uri successfully created.", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    override fun onWordClick(word: String) {
+        binding.tvSimpleText.replaceSelectedWord((0..100).random().toString())
     }
 }
 
