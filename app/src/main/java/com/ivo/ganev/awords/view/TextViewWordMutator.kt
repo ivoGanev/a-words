@@ -74,6 +74,11 @@ class TextViewWordMutator :
     fun setClickableText(text: CharSequence) {
         val spannableString = SpannableString(text)
         spannableString.setClickableSpanToAllWords {clickableSpan()}
+
+        // when you set the text = "something" you create a new copy of it in memory with the factory.
+        // But what also happens is the Factory creates a new SpannableString() every time we call setText()
+        // instead of creating it we cast the text(CharSequence) as Spannable and set the text to it
+        // without
         super.setText(spannableString)
     }
 

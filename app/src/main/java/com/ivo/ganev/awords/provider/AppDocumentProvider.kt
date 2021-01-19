@@ -10,6 +10,7 @@ import android.provider.DocumentsProvider
 import com.ivo.ganev.awords.R
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 
 
 class AppDocumentProvider : DocumentsProvider() {
@@ -22,13 +23,6 @@ class AppDocumentProvider : DocumentsProvider() {
         Document.COLUMN_SIZE
     )
 
-    private val rootId: String = "root"
-
-    // more MIME types can be added by adding a new line like:
-    // "text/*\n
-    //  image/*\n" and so on
-    private val mimeTypes = "text/plain"
-
     private val defaultRootProjection: Array<String> = arrayOf(
         Root.COLUMN_ROOT_ID,
         Root.COLUMN_MIME_TYPES,
@@ -40,25 +34,41 @@ class AppDocumentProvider : DocumentsProvider() {
         Root.COLUMN_AVAILABLE_BYTES
     )
 
+    private val rootId: String = "root"
+
+    // mime support is only for text
+    private val mimeTypes = "text/plain"
+
     private lateinit var baseDir: File
+
+    override fun createDocument(parentDocumentId: String, mimeType: String, displayName: String): String {
+        val parent: File = getFileForDocId(parentDocumentId)
+        val fileName = displayName.toTextFileFormat()
+
+        val file: File = try {
+            File(parent.path, fileName).apply {
+                createNewFile()
+                setWritable(true)
+                setReadable(true)
+            }
+        } catch (ex: IOException) {
+            throw FileNotFoundException(
+                "Failed to create document with name $displayName and documentId $parentDocumentId"
+            )
+        }
+
+        println(mimeType)
+        println("Creating file: " + getDocIdForFile(file))
+        return getDocIdForFile(file)
+    }
 
     override fun onCreate(): Boolean {
         baseDir = context!!.filesDir
-        println("Loaded Documents Provider")
-        createDummyDocuments()
         return true
     }
 
-    private fun createDummyDocuments() {
-        val dummyTxt = File("$baseDir/dummy.txt")
-        dummyTxt.writeText("Hello World")
-        val dummyMp3 = File("$baseDir/dummy.mp3")
-        dummyTxt.createNewFile()
-        dummyMp3.createNewFile()
-    }
-
     override fun queryRoots(projection: Array<String>?): Cursor {
-        val result = resolveRootProjection(projection)
+        val result = MatrixCursor(projection ?: defaultRootProjection)
 
         result.newRow().apply {
             add(Root.COLUMN_ROOT_ID, rootId)
@@ -94,23 +104,24 @@ class AppDocumentProvider : DocumentsProvider() {
         return result
     }
 
-    private fun resolveRootProjection(projection: Array<String>?) =
-        MatrixCursor(projection ?: defaultRootProjection)
-
     override fun queryDocument(documentId: String, projection: Array<String>?): Cursor {
-        val result = MatrixCursor(resolveDocumentProjection(projection))
+        val result = MatrixCursor(projection ?: defaultDocumentProjection)
         val file = getFileForDocId(documentId)
         includeFile(result, file)
         println("Querying single document $documentId file: ${file.path}")
         return result
     }
 
-    override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
+    override fun queryChildDocuments(
+        parentDocumentId: String,
+        projection: Array<String>?,
+        sortOrder: String?
+    ): Cursor {
         println(
             "queryChildDocuments, parentDocumentId: $parentDocumentId sortOrder: $sortOrder"
         )
 
-        val result = MatrixCursor(resolveDocumentProjection(projection))
+        val result = MatrixCursor(projection ?: defaultDocumentProjection)
         val parent: File = getFileForDocId(parentDocumentId)
         for (file in parent.listFiles()!!) {
             println("parent contains: " + file.path)
@@ -119,14 +130,15 @@ class AppDocumentProvider : DocumentsProvider() {
         return result
     }
 
-    override fun openDocument(
-        documentId: String,
-        mode: String,
-        signal: CancellationSignal?
-    ): ParcelFileDescriptor {
-        return ParcelFileDescriptor.open(getFileForDocId(documentId), ParcelFileDescriptor.parseMode(mode))
-    }
+    override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?)
+            : ParcelFileDescriptor = ParcelFileDescriptor.open(
+        getFileForDocId(documentId),
+        ParcelFileDescriptor.parseMode(mode)
+    )
 
+    /**
+     * This is what will make the file to appear in the Document Provider UI
+     * */
     private fun includeFile(cursor: MatrixCursor, file: File) {
         val docId = getDocIdForFile(file)
         println("Including file in cursor: $docId")
@@ -150,8 +162,7 @@ class AppDocumentProvider : DocumentsProvider() {
                 add(Document.COLUMN_MIME_TYPE, "text/plain")
                 add(
                     Document.COLUMN_FLAGS,
-                    Document.FLAG_SUPPORTS_DELETE or
-                            Document.FLAG_SUPPORTS_WRITE
+                    Document.FLAG_SUPPORTS_DELETE or Document.FLAG_SUPPORTS_WRITE or Document.FLAG_DIR_SUPPORTS_CREATE
                 )
                 add(Document.COLUMN_SIZE, file.length())
             }
@@ -169,17 +180,26 @@ class AppDocumentProvider : DocumentsProvider() {
      */
     @Throws(FileNotFoundException::class)
     private fun getFileForDocId(docId: String): File {
-        var target: File = baseDir
+        // Objective Example: Convert a document with docId being "root:file.txt",
+        // to /data/user/0/com.ivo.ganev.awords/files/file.txt
+
+        // if docId is "root:" we just return
+        // /data/user/0/com.ivo.ganev.awords/files/ because it is our root directory.
         if (docId == rootId) {
-            return target
+            return baseDir
         }
+
+        var target: File = baseDir
+
+        // else when a docId comes as "root:something" we:
+        // remove the "root:" and leave "something"
         val splitIndex = docId.indexOf(':', 1)
         return if (splitIndex < 0) {
             throw FileNotFoundException("Missing root for $docId")
         } else {
             val path = docId.substring(splitIndex + 1)
-            println("File path from docId = $path")
             target = File(target, path)
+
             if (!target.exists()) {
                 throw FileNotFoundException("Missing file for $docId at $target")
             }
@@ -187,9 +207,6 @@ class AppDocumentProvider : DocumentsProvider() {
         }
     }
 
-    private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
-        return projection ?: defaultDocumentProjection
-    }
 
     /**
      * Get the document ID given a File.  The document id must be consistent across time.  Other
@@ -204,17 +221,25 @@ class AppDocumentProvider : DocumentsProvider() {
      * @param file the File whose document ID you want
      * @return the corresponding document ID
      */
-    private fun getDocIdForFile(file: File): String? {
-        var path: String = file.absolutePath
+    private fun getDocIdForFile(file: File): String {
+        var absolutePath: String = file.absolutePath
 
-        // Start at first char of path under root
         val rootPath: String = baseDir.path
-        path = when {
-            rootPath == path -> ""
-            rootPath.endsWith("/") -> path.substring(rootPath.length)
-            else -> path.substring(rootPath.length + 1)
+
+        absolutePath = when {
+            rootPath == absolutePath -> ""
+            rootPath.endsWith("/") -> absolutePath.substring(rootPath.length)
+            else -> absolutePath.substring(rootPath.length + 1)
         }
-        println("$rootId:$path")
-        return "$rootId:$path"
+        return "$rootId:$absolutePath"
+    }
+
+    /**
+     * Creates a new string from this one and adds ".txt" to the end of it.
+     * */
+    private fun String.toTextFileFormat(): String {
+        if (!this.endsWith(".txt"))
+            return "$this.txt"
+        return this
     }
 }
