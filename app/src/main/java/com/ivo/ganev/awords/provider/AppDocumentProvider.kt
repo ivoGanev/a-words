@@ -39,7 +39,9 @@ class AppDocumentProvider : DocumentsProvider() {
     // mime support is only for text
     private val mimeTypes = "text/plain"
 
-    private lateinit var baseDir: File
+    private val baseDir: File by lazy {
+        context!!.filesDir
+    }
 
     override fun createDocument(parentDocumentId: String, mimeType: String, displayName: String): String {
         val parent: File = getFileForDocId(parentDocumentId)
@@ -62,10 +64,18 @@ class AppDocumentProvider : DocumentsProvider() {
         return getDocIdForFile(file)
     }
 
-    override fun onCreate(): Boolean {
-        baseDir = context!!.filesDir
-        return true
+    override fun onCreate(): Boolean = true
+
+    @Throws(FileNotFoundException::class)
+    override fun deleteDocument(documentId: String) = getFileForDocId(documentId).delete().let {
+        if (!it) throw FileNotFoundException("Failed to delete document with id: $documentId")
     }
+
+    override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?)
+            : ParcelFileDescriptor = ParcelFileDescriptor.open(
+        getFileForDocId(documentId),
+        ParcelFileDescriptor.parseMode(mode)
+    )
 
     override fun queryRoots(projection: Array<String>?): Cursor {
         val result = MatrixCursor(projection ?: defaultRootProjection)
@@ -85,9 +95,7 @@ class AppDocumentProvider : DocumentsProvider() {
             // shares.
             add(
                 Root.COLUMN_FLAGS,
-                Root.FLAG_SUPPORTS_CREATE or
-                        Root.FLAG_SUPPORTS_RECENTS or
-                        Root.FLAG_SUPPORTS_SEARCH
+                Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_RECENTS or Root.FLAG_LOCAL_ONLY
             )
 
             // COLUMN_TITLE is the root title (e.g. Gallery, Drive).
@@ -108,33 +116,18 @@ class AppDocumentProvider : DocumentsProvider() {
         val result = MatrixCursor(projection ?: defaultDocumentProjection)
         val file = getFileForDocId(documentId)
         includeFile(result, file)
-        println("Querying single document $documentId file: ${file.path}")
         return result
     }
 
-    override fun queryChildDocuments(
-        parentDocumentId: String,
-        projection: Array<String>?,
-        sortOrder: String?
-    ): Cursor {
-        println(
-            "queryChildDocuments, parentDocumentId: $parentDocumentId sortOrder: $sortOrder"
-        )
-
+    override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
         val result = MatrixCursor(projection ?: defaultDocumentProjection)
-        val parent: File = getFileForDocId(parentDocumentId)
+        val parent = getFileForDocId(parentDocumentId)
         for (file in parent.listFiles()!!) {
-            println("parent contains: " + file.path)
             includeFile(result, file)
         }
         return result
     }
 
-    override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?)
-            : ParcelFileDescriptor = ParcelFileDescriptor.open(
-        getFileForDocId(documentId),
-        ParcelFileDescriptor.parseMode(mode)
-    )
 
     /**
      * This is what will make the file to appear in the Document Provider UI
@@ -173,10 +166,6 @@ class AppDocumentProvider : DocumentsProvider() {
 
     /**
      * Translate your custom URI scheme into a File object.
-     *
-     * @param docId the document ID representing the desired file
-     * @return a File represented by the given document ID
-     * @throws java.io.FileNotFoundException
      */
     @Throws(FileNotFoundException::class)
     private fun getFileForDocId(docId: String): File {
@@ -207,20 +196,9 @@ class AppDocumentProvider : DocumentsProvider() {
         }
     }
 
-
     /**
-     * Get the document ID given a File.  The document id must be consistent across time.  Other
-     * applications may save the ID and use it to reference documents later.
-     *
-     *
-     * This implementation is specific to this demo.  It assumes only one root and is built
-     * directly from the file structure.  However, it is possible for a document to be a child of
-     * multiple directories (for example "android" and "images"), in which case the file must have
-     * the same consistent, unique document ID in both cases.
-     *
-     * @param file the File whose document ID you want
-     * @return the corresponding document ID
-     */
+     * Translates your file to document ID
+     * */
     private fun getDocIdForFile(file: File): String {
         var absolutePath: String = file.absolutePath
 

@@ -79,6 +79,7 @@ class MainFragment : Fragment(R.layout.main_fragment), View.OnClickListener {
 
     private fun saveFile(resultData: Intent) {
         try {
+            // TODO this needs to be inside a coroutine
             val parcelFileDescriptor = contentResolver.openFileDescriptor(resultData.data!!, "w")
             val outputStream = FileOutputStream(parcelFileDescriptor?.fileDescriptor)
             val string = binding.tvSimpleText.text.toString()
