@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.ActivityMainBinding
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -30,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.mainToolbar)
         setupActionBarWithNavController(navController)
         binding.mainToolbar.setupWithNavController(navController, appBarConfiguration)
-
     }
 
     override fun onNavigateUp(): Boolean {

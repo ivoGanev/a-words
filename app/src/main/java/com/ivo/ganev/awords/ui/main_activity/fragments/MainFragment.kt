@@ -2,6 +2,7 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -15,7 +16,6 @@ import com.ivo.ganev.awords.ui.main_activity.MainActivity
 import com.ivo.ganev.awords.ui.main_activity.fragments.MainFragment.RequestCode.*
 
 
-
 class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     enum class RequestCode {
         OPEN,
@@ -26,7 +26,6 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var binding: FragmentMainBinding
 
-    // This is a potential memory leak!
     private val mainActivityContext: MainActivity by lazy {
         activity as MainActivity
     }
@@ -38,10 +37,10 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         binding.mainButtonOpenFile.setOnClickListener(this)
         binding.mainButtonOpenFile.setOnClickListener(this)
 
-        viewModel.doneNavigating()
-
         viewModel.userPickedFile.observe(viewLifecycleOwner) {
-            if (it != null) mainActivityContext.navController.navigate(MainFragmentDirections.actionMainFragmentToEditorFragment(it))
+            it.getUnhandled()?.let { loadedText ->
+                mainActivityContext.navController.navigate(MainFragmentDirections.actionMainFragmentToEditorFragment(loadedText))
+            }
         }
     }
 
@@ -52,8 +51,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 OPEN.ordinal -> viewModel.loadFile(requireContext().contentResolver, data)
                 CREATE.ordinal -> viewModel.createFile(data)
             }
-        }
-        else if(resultCode == Activity.RESULT_CANCELED) {
+        } else if (resultCode == Activity.RESULT_CANCELED) {
             TODO()
         }
     }

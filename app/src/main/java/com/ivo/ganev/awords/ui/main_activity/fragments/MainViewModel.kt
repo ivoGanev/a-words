@@ -8,25 +8,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.ivo.ganev.awords.ActivityTestIo
+import com.ivo.ganev.awords.platform.SingleEvent
 import timber.log.Timber
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-const val SELECT_FILE_CODE = 7
-
-
 class MainViewModel : ViewModel() {
-    private val _userPickedFile = MutableLiveData<String>()
+    private val _userPickedFile = MutableLiveData<SingleEvent<String>>()
 
-    val userPickedFile: LiveData<String>
+    val userPickedFile: LiveData<SingleEvent<String>>
         get() = _userPickedFile
-
 
     fun loadFile(contentResolver: ContentResolver, providerIntent: Intent): Boolean {
         if (providerIntent.data == null) return false
         val reader = BufferedReader(InputStreamReader(providerIntent.data?.let {
             contentResolver.openInputStream(it) }))
-        _userPickedFile.value = reader.readText()
+        _userPickedFile.value = SingleEvent(reader.readText())
         return true
     }
 
@@ -34,10 +31,6 @@ class MainViewModel : ViewModel() {
         if (providerIntent.data == null) return false
         providerIntent.data?.let { Timber.d("File with provider Uri: $it successfully created.") }
         return true
-    }
-
-    fun doneNavigating() {
-        _userPickedFile.value = null
     }
 }
 

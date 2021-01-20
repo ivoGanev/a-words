@@ -1,10 +1,13 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.ivo.ganev.awords.ActivityTestIo
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.ui.main_activity.MainActivity
@@ -24,5 +27,4 @@ class EditorFragment : Fragment(R.layout.fragment_editor) {
         binding = FragmentEditorBinding.bind(view)
         binding.contentTextview.text = args.content
     }
-
 }
