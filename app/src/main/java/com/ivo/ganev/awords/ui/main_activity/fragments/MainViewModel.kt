@@ -1,40 +1,45 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
-import androidx.lifecycle.LifecycleOwner
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.ivo.ganev.awords.ActivityTestIo
+import timber.log.Timber
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 const val SELECT_FILE_CODE = 7
 
-class MainViewModel : ViewModel() {
 
+class MainViewModel : ViewModel() {
     private val _userPickedFile = MutableLiveData<String>()
 
     val userPickedFile: LiveData<String>
         get() = _userPickedFile
 
 
-    fun handleUri(uri: Uri, contentResolver: ContentResolver) {
+    fun loadFile(contentResolver: ContentResolver, providerIntent: Intent): Boolean {
+        if (providerIntent.data == null) return false
+        val reader = BufferedReader(InputStreamReader(providerIntent.data?.let {
+            contentResolver.openInputStream(it) }))
+        _userPickedFile.value = reader.readText()
+        return true
+    }
 
-        val reader = BufferedReader(InputStreamReader(contentResolver.openInputStream(uri)))
-        var line: String? = reader.readLine()
-
-        val stringBuilder = StringBuilder()
-        while (line != null) {
-            stringBuilder.append("$line\n")
-            line = reader.readLine()
-        }
-
-        _userPickedFile.value = stringBuilder.toString()
+    fun createFile(providerIntent: Intent): Boolean {
+        if (providerIntent.data == null) return false
+        providerIntent.data?.let { Timber.d("File with provider Uri: $it successfully created.") }
+        return true
     }
 
     fun doneNavigating() {
         _userPickedFile.value = null
     }
-
 }
+
+
+

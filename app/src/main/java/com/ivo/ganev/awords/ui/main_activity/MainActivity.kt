@@ -15,9 +15,11 @@ class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
+
     val navController: NavController by lazy {
         (supportFragmentManager.findFragmentById(R.id.main_nav_host) as NavHostFragment).navController
     }
+
     private val appBarConfiguration: AppBarConfiguration by lazy {
         AppBarConfiguration(navController.graph)
     }

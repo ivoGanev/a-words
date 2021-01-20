@@ -1,5 +1,6 @@
 package com.ivo.ganev.awords.provider
 
+import android.content.Intent
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.CancellationSignal
@@ -12,8 +13,19 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
-
+typealias StorageAccessFramework = AppDocumentProvider.Companion
 class AppDocumentProvider : DocumentsProvider() {
+    companion object {
+        fun getOpenIntent() = createIntent(Intent.ACTION_OPEN_DOCUMENT)
+        fun getCreateIntent() = createIntent(Intent.ACTION_CREATE_DOCUMENT)
+
+        private fun createIntent(intentCode: String): Intent =
+            Intent(intentCode).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/plain"
+            }
+    }
+
     private val defaultDocumentProjection: Array<String> = arrayOf(
         Document.COLUMN_DOCUMENT_ID,
         Document.COLUMN_MIME_TYPE,
@@ -100,7 +112,7 @@ class AppDocumentProvider : DocumentsProvider() {
 
             // This document id cannot change after it's shared.
             add(Root.COLUMN_DOCUMENT_ID, getDocIdForFile(baseDir))
-            println( getDocIdForFile(baseDir))
+            println(getDocIdForFile(baseDir))
             // The child MIME types are used to filter the roots and only present to the
             // user those roots that contain the desired type somewhere in their file hierarchy.
             add(Root.COLUMN_MIME_TYPES, mimeTypes)
@@ -193,7 +205,7 @@ class AppDocumentProvider : DocumentsProvider() {
     }
 
     /**
-     * Translates your file to document ID 
+     * Translates your file to document ID
      * */
     private fun getDocIdForFile(file: File): String {
         var absolutePath: String = file.absolutePath
