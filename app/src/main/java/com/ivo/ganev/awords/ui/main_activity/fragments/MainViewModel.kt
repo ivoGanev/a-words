@@ -1,17 +1,16 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
-import android.content.ContentResolver
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
+import android.R.attr.label
+import android.content.*
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.ivo.ganev.awords.ActivityTestIo
 import com.ivo.ganev.awords.platform.SingleEvent
 import timber.log.Timber
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
 
 class MainViewModel : ViewModel() {
     private val _userPickedFile = MutableLiveData<SingleEvent<String>>()
@@ -19,10 +18,17 @@ class MainViewModel : ViewModel() {
     val userPickedFile: LiveData<SingleEvent<String>>
         get() = _userPickedFile
 
-    fun loadFile(contentResolver: ContentResolver, providerIntent: Intent): Boolean {
+    fun loadFromClipBoard(context: Context) {
+        val clipboard: ClipboardManager? = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val clippedText = clipboard?.primaryClip
+        _userPickedFile.value = SingleEvent(clippedText?.getItemAt(0)?.text.toString())
+    }
+
+    fun loadFile(context: Context, providerIntent: Intent): Boolean {
         if (providerIntent.data == null) return false
         val reader = BufferedReader(InputStreamReader(providerIntent.data?.let {
-            contentResolver.openInputStream(it) }))
+            context.contentResolver.openInputStream(it)
+        }))
         _userPickedFile.value = SingleEvent(reader.readText())
         return true
     }

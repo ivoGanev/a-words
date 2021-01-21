@@ -54,7 +54,7 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK && data != null) {
             when (requestCode) {
-                OPEN.ordinal -> viewModel.loadFile(requireContext().contentResolver, data)
+                OPEN.ordinal -> viewModel.loadFile(requireContext(), data)
                 SAVE.ordinal -> TODO()
                 CREATE.ordinal -> viewModel.createFile(data)
             }
@@ -69,7 +69,8 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
                 startActivityForResult(StorageAccessFramework.getOpenIntent(), OPEN.ordinal)
             binding.mainButtonCreateNewFile ->
                 startActivityForResult(StorageAccessFramework.getCreateIntent(), CREATE.ordinal)
-            binding.mainButtonLoadClipboard -> TODO()
+            binding.mainButtonLoadClipboard ->
+                viewModel.loadFromClipBoard(requireContext())
         }
     }
 }
