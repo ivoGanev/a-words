@@ -9,6 +9,8 @@ import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.ui.main_activity.MainActivity
 import com.ivo.ganev.awords.view.TextViewWordMutator
+import com.ivo.ganev.datamuse_kotlin.response.WordResponse
+import com.ivo.ganev.datamuse_kotlin.response.WordResponse.Element.Word
 
 class EditorFragment : Fragment(R.layout.fragment_editor) {
     private val viewModel: EditorViewModel by viewModels()
@@ -43,12 +45,19 @@ class EditorFragment : Fragment(R.layout.fragment_editor) {
             object : TextViewWordMutator.OnWordClickedListener {
                 override fun onWordClick(word: String) {
                     val query = viewModel.makeQuery(word, viewModel.type)
+                    println(query.build().toUrl())
                     viewModel.fireUpQuery(query)
                 }
             }
 
-        viewModel.results.observe(viewLifecycleOwner) {
-            //binding.contentTextview.replaceSelectedWord()
+        viewModel.results.observe(viewLifecycleOwner) { wordResponses ->
+            val randomWord = wordResponses
+                .flatMap { it.elements }
+                .filterIsInstance<Word>()
+
+            if (randomWord.isNotEmpty())
+                binding.contentTextview.replaceSelectedWord(randomWord.random().word)
         }
     }
 }
+

@@ -7,6 +7,8 @@ import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.WordsEndpointBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint
+import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint.*
+import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint.RelatedWords.Code.*
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.hardConstraintsOf
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 import com.ivo.ganev.datamuse_kotlin.response.WordResponse
@@ -25,11 +27,10 @@ class EditorViewModel : ViewModel() {
 
     fun makeQuery(word: String, type: Type) = wordsBuilder {
         hardConstraints = when (type) {
-            Type.Synonyms -> hardConstraintsOf(HardConstraint.MeansLike(word))
-            Type.Antonyms -> hardConstraintsOf(HardConstraint.SoundsLike(word))
-            Type.Rhymes -> hardConstraintsOf(HardConstraint.SoundsLike(word))
+            Type.Synonyms -> hardConstraintsOf(RelatedWords(SYNONYMS, word))
+            Type.Antonyms -> hardConstraintsOf(RelatedWords(ANTONYMS, word))
+            Type.Rhymes -> hardConstraintsOf(RelatedWords(RHYMES, word))
         }
-        hardConstraints = hardConstraintsOf(HardConstraint.MeansLike(word))
         maxResults = 10
     }
 
@@ -39,7 +40,7 @@ class EditorViewModel : ViewModel() {
     fun fireUpQuery(query: WordsEndpointBuilder) {
         viewModelScope.launch {
             val words = datamuseClient.query(query.build())
-            words.applyEither({ it -> failure.postValue(it) }, { results.postValue(it) })
+            words.applyEither({ failure.postValue(it) }, { results.postValue(it) })
         }
     }
 }
