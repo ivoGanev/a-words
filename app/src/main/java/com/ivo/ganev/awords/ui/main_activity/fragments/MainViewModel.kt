@@ -1,8 +1,8 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
-import android.R.attr.label
-import android.content.*
-import androidx.core.content.ContextCompat.getSystemService
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,7 +19,8 @@ class MainViewModel : ViewModel() {
         get() = _userPickedFile
 
     fun loadFromClipBoard(context: Context) {
-        val clipboard: ClipboardManager? = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val clipboard: ClipboardManager? =
+            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clippedText = clipboard?.primaryClip
         _userPickedFile.value = SingleEvent(clippedText?.getItemAt(0)?.text.toString())
     }

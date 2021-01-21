@@ -1,16 +1,14 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.ivo.ganev.awords.ActivityTestIo
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.ui.main_activity.MainActivity
+import com.ivo.ganev.awords.view.TextViewWordMutator
 
 class EditorFragment : Fragment(R.layout.fragment_editor) {
     private val viewModel: EditorViewModel by viewModels()
@@ -25,6 +23,32 @@ class EditorFragment : Fragment(R.layout.fragment_editor) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
-        binding.contentTextview.text = args.content
+        binding.contentTextview.setClickableText(args.content)
+
+        when (binding.include.Type.checkedRadioButtonId) {
+            binding.include.button1.id -> viewModel.type = EditorViewModel.Type.Synonyms
+            binding.include.button2.id -> viewModel.type = EditorViewModel.Type.Antonyms
+            binding.include.button3.id -> viewModel.type = EditorViewModel.Type.Rhymes
+        }
+
+        binding.include.Type.setOnCheckedChangeListener { _, index ->
+            when (index) {
+                0 -> viewModel.type = EditorViewModel.Type.Synonyms
+                1 -> viewModel.type = EditorViewModel.Type.Antonyms
+                2 -> viewModel.type = EditorViewModel.Type.Rhymes
+            }
+        }
+
+        binding.contentTextview.onWordClickedListener =
+            object : TextViewWordMutator.OnWordClickedListener {
+                override fun onWordClick(word: String) {
+                    val query = viewModel.makeQuery(word, viewModel.type)
+                    viewModel.fireUpQuery(query)
+                }
+            }
+
+        viewModel.results.observe(viewLifecycleOwner) {
+            //binding.contentTextview.replaceSelectedWord()
+        }
     }
 }
