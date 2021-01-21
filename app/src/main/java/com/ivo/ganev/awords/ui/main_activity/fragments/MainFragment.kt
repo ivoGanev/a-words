@@ -2,15 +2,14 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentMainBinding
-import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.provider.StorageAccessFramework
 import com.ivo.ganev.awords.ui.main_activity.MainActivity
 import com.ivo.ganev.awords.ui.main_activity.fragments.MainFragment.RequestCode.*
@@ -33,13 +32,20 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
-        binding.mainButtonCreateNewFile.setOnClickListener(this)
-        binding.mainButtonOpenFile.setOnClickListener(this)
-        binding.mainButtonOpenFile.setOnClickListener(this)
+
+        binding.apply {
+            mainButtonOpenFile.setOnClickListener(this@MainFragment)
+            mainButtonLoadClipboard.setOnClickListener(this@MainFragment)
+            mainButtonCreateNewFile.setOnClickListener(this@MainFragment)
+        }
 
         viewModel.userPickedFile.observe(viewLifecycleOwner) {
             it.getUnhandled()?.let { loadedText ->
-                mainActivityContext.navController.navigate(MainFragmentDirections.actionMainFragmentToEditorFragment(loadedText))
+                mainActivityContext.navController.navigate(
+                    MainFragmentDirections.actionMainFragmentToEditorFragment(
+                        loadedText
+                    )
+                )
             }
         }
     }
@@ -49,20 +55,21 @@ class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {
         if (resultCode == RESULT_OK && data != null) {
             when (requestCode) {
                 OPEN.ordinal -> viewModel.loadFile(requireContext().contentResolver, data)
+                SAVE.ordinal -> TODO()
                 CREATE.ordinal -> viewModel.createFile(data)
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
-            TODO()
+            Toast.makeText(mainActivityContext, "No File Selected", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onClick(clickedView: View?) {
-        when {
-            clickedView isWithId R.id.main_button_open_file ->
+    override fun onClick(clickedView: View) {
+        when (clickedView) {
+            binding.mainButtonOpenFile ->
                 startActivityForResult(StorageAccessFramework.getOpenIntent(), OPEN.ordinal)
-            clickedView isWithId R.id.main_button_create_new_file ->
+            binding.mainButtonCreateNewFile ->
                 startActivityForResult(StorageAccessFramework.getCreateIntent(), CREATE.ordinal)
-            clickedView isWithId R.id.main_button_load_clipboard -> TODO()
+            binding.mainButtonLoadClipboard -> TODO()
         }
     }
 }
