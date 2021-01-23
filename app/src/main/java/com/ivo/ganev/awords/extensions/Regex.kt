@@ -14,3 +14,13 @@ fun CharSequence.matchNoSpace() : Matcher {
     val regex: Pattern = Pattern.compile("[\\S]+")
     return regex.matcher(this)
 }
+
+
+/**
+ * Matches only alphabet characters.
+ * */
+fun CharSequence.onlyCharacters() : Matcher {
+    // exclude all space characters
+    val regex: Pattern = Pattern.compile("[A-Za-z]+")
+    return regex.matcher(this)
+}

@@ -31,9 +31,6 @@ class TextViewWordMutator :
      * */
     var onWordClickedListener: OnWordClickedListener? = null
 
-    /**
-     * With spannable factory we avoid object creation
-     * */
     private val spannableFactory = object : Spannable.Factory() {
         override fun newSpannable(source: CharSequence?): Spannable {
             return source as Spannable
@@ -73,7 +70,7 @@ class TextViewWordMutator :
      * */
     fun setClickableText(text: CharSequence) {
         val spannableString = SpannableString(text)
-        spannableString.setClickableSpanToAllWords {clickableSpan()}
+        spannableString.setClickableSpanToAllWords { clickableSpan() }
 
         // when you set the text = "something" you create a new copy of it in memory with the factory.
         // But what also happens is the Factory creates a new SpannableString() every time we call setText()
@@ -97,7 +94,7 @@ class TextViewWordMutator :
                 //       Also I haven't checked the performance but for each span there is a clickableSpan object
                 //       meaning that there could be 1000's of spans for a long text. For now it's not that
                 //       important though.
-                setClickableSpanToAllWords {clickableSpan()} // recreate all spans
+                setClickableSpanToAllWords { clickableSpan() } // recreate all spans
             }
         }
     }

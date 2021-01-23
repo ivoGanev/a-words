@@ -8,7 +8,7 @@ import android.text.style.ClickableSpan
  * the receiver [Spannable] excluding "space" characters.
  * */
 fun Spannable.setClickableSpanToAllWords(clickableSpan: ()->ClickableSpan) {
-    val noSpaceMatch = matchNoSpace()
+    val noSpaceMatch = onlyCharacters()
     while (noSpaceMatch.find()) {
         setSpan(
             clickableSpan(),
