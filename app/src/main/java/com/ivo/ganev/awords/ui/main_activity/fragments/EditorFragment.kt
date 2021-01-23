@@ -2,8 +2,10 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -56,6 +58,5 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
             viewModel.query(word, type as EditorViewModel.RadioGroupType)
         }
     }
-
 }
 
