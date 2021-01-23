@@ -61,7 +61,6 @@ class EditorViewModel : ViewModel() {
             hardConstraints = radioGroupType.toConstraint(word)
         }
 
-
         viewModelScope.launch {
             val words = datamuseClient.query(query.build())
             words.applyEither({ _failure.postValue(it) }, { wordResponses ->
@@ -71,7 +70,7 @@ class EditorViewModel : ViewModel() {
                     .takeIf { it.isNotEmpty() }
                     ?.random()
                     ?.word
-                println(randomWord)
+
                 if (randomWord != null) {
                     if (word.isFirstCharacterUpperCase())
                         _wordResult.postValue(randomWord.capitalizeFirstLetter())
