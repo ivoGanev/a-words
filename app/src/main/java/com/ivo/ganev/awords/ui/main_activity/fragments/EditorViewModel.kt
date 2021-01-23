@@ -1,13 +1,13 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivo.ganev.awords.extensions.capitalizeFirstLetter
+import com.ivo.ganev.awords.extensions.isFirstCharacterUpperCase
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint
@@ -25,9 +25,9 @@ class EditorViewModel : ViewModel() {
     private val datamuseClient = DatamuseKotlinClient()
 
 
-    private val _results = MutableLiveData<Set<WordResponse>>()
-    val results: LiveData<Set<WordResponse>>
-        get() = _results
+    private val _wordResult = MutableLiveData<String>()
+    val wordResult: LiveData<String>
+        get() = _wordResult
 
     private val _failure = MutableLiveData<RemoteFailure>()
     val failure: LiveData<RemoteFailure>
@@ -54,22 +54,38 @@ class EditorViewModel : ViewModel() {
     }
 
     /**
-     * Will query Datamuse and update [results] or [failure] accordingly.
+     * Will query Datamuse and update [word] or [failure] accordingly.
      * */
     fun query(word: String, radioGroupType: RadioGroupType) {
         val query = wordsBuilder {
             hardConstraints = radioGroupType.toConstraint(word)
         }
-        println(query.build().toUrl())
+
+
         viewModelScope.launch {
             val words = datamuseClient.query(query.build())
-            words.applyEither({ _failure.postValue(it) }, { _results.postValue(it) })
+            words.applyEither({ _failure.postValue(it) }, { wordResponses ->
+                val randomWord = wordResponses
+                    .flatMap { it.elements }
+                    .filterIsInstance<WordResponse.Element.Word>()
+                    .takeIf { it.isNotEmpty() }
+                    ?.random()
+                    ?.word
+                println(randomWord)
+                if (randomWord != null) {
+                    if (word.isFirstCharacterUpperCase())
+                        _wordResult.postValue(randomWord.capitalizeFirstLetter())
+                    else
+                        _wordResult.postValue(randomWord)
+                } else
+                    _wordResult.postValue("")
+            })
         }
     }
 
-    fun save(context: Context,uri: Uri?, text: String) {
+    fun save(context: Context, uri: Uri?, text: String) {
         try {
-            if(uri!=null) {
+            if (uri != null) {
                 val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "w")
                 val outputStream = FileOutputStream(parcelFileDescriptor?.fileDescriptor)
                 outputStream.write(text.encodeToByteArray())

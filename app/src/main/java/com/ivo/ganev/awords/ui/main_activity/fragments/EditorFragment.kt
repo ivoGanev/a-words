@@ -3,6 +3,7 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 import android.os.Bundle
 import android.view.View
 import android.widget.RadioButton
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -29,13 +30,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
         binding.editorSwitch.setOnClickListener(this)
         binding.contentTextview.onWordClickedListener = onWordClickedListener()
 
-        viewModel.results.observe(viewLifecycleOwner) { wordResponses ->
-            val randomWord = wordResponses
-                .flatMap { it.elements }
-                .filterIsInstance<Word>()
-
-            if (randomWord.isNotEmpty())
-                binding.contentTextview.replaceSelectedWord(randomWord.random().word)
+        viewModel.wordResult.observe(viewLifecycleOwner) {
+            println(it)
+            if (it.isEmpty())
+                Toast.makeText(requireContext(), "Couldn't find any related words", Toast.LENGTH_SHORT).show()
+            else
+                binding.contentTextview.replaceSelectedWord(it)
         }
     }
 
