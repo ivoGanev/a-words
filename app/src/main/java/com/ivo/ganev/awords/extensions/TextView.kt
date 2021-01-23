@@ -2,6 +2,8 @@ package com.ivo.ganev.awords.extensions
 
 import android.text.Spannable
 import android.text.style.ClickableSpan
+import android.view.View
+import android.widget.TextView
 
 /**
  * It's a mutating function that sets clickable span on each word it finds inside

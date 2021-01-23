@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class EditorViewModel : ViewModel() {
     private val datamuseClient = DatamuseKotlinClient()
 
+    //TODO: this non related state needs to disappear
     lateinit var type: EditorViewModel.Type
 
     enum class Type {
@@ -32,6 +33,7 @@ class EditorViewModel : ViewModel() {
             Type.Rhymes -> hardConstraintsOf(RelatedWords(RHYMES, word))
         }
         maxResults = 10
+        //TODO Fix bugs which are related to type
     }
 
     private val failure = MutableLiveData<RemoteFailure>()

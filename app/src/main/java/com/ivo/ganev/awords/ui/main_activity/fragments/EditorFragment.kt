@@ -4,15 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
+import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.ui.main_activity.MainActivity
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import com.ivo.ganev.datamuse_kotlin.response.WordResponse
 import com.ivo.ganev.datamuse_kotlin.response.WordResponse.Element.Word
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
-class EditorFragment : Fragment(R.layout.fragment_editor) {
+class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener {
     private val viewModel: EditorViewModel by viewModels()
     private lateinit var binding: FragmentEditorBinding
     private val args: EditorFragmentArgs by navArgs()
@@ -32,6 +36,8 @@ class EditorFragment : Fragment(R.layout.fragment_editor) {
             binding.include.button2.id -> viewModel.type = EditorViewModel.Type.Antonyms
             binding.include.button3.id -> viewModel.type = EditorViewModel.Type.Rhymes
         }
+
+        binding.editorSwitch.setOnClickListener(this)
 
         binding.include.Type.setOnCheckedChangeListener { _, index ->
             when (index) {
@@ -58,6 +64,16 @@ class EditorFragment : Fragment(R.layout.fragment_editor) {
             if (randomWord.isNotEmpty())
                 binding.contentTextview.replaceSelectedWord(randomWord.random().word)
         }
+    }
+
+    override fun onClick(v: View?) {
+        if(v isWithId R.id.editor_switch) {
+            switchMode()
+        }
+    }
+
+    private fun switchMode() {
+        binding.editorViewSwitcher.showNext()
     }
 }
 

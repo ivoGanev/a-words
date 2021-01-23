@@ -2,6 +2,7 @@ package com.ivo.ganev.awords.ui.main_activity
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -10,7 +11,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.ActivityMainBinding
-import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
