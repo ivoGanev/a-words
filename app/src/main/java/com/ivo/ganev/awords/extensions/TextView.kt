@@ -10,7 +10,7 @@ import android.widget.TextView
  * the receiver [Spannable] excluding "space" characters.
  * */
 fun Spannable.setClickableSpanToAllWords(clickableSpan: ()->ClickableSpan) {
-    val noSpaceMatch = matchNoSpace()
+    val noSpaceMatch = onlyCharacters()
     while (noSpaceMatch.find()) {
         setSpan(
             clickableSpan(),
