@@ -11,7 +11,7 @@
     tools:showIn="@layout/fragment_editor">
 
     <RadioGroup
-        android:id="@+id/Type"
+        android:id="@+id/editor_radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
