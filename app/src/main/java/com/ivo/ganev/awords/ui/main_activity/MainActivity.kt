@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.ActivityMainBinding
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         binding.mainToolbar.setupWithNavController(navController, appBarConfiguration)
     }
 
+    
     override fun onNavigateUp(): Boolean {
         NavigationUI.navigateUp(navController, appBarConfiguration)
         return true

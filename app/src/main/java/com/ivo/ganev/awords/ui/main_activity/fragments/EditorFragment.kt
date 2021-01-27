@@ -24,13 +24,18 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
-        binding.contentTextview.setClickableText(args.content)
+        binding.apply {
+            contentTextview.setClickableText(args.content)
+            contentTextview.onWordClickedListener = onWordClickedListener()
+            include.button1.tag = EditorViewModel.RadioGroupType.Synonyms
+            include.button2.tag = EditorViewModel.RadioGroupType.Antonyms
+            include.button3.tag = EditorViewModel.RadioGroupType.Rhymes
+            editorSwitch.setOnClickListener(this@EditorFragment)
+            editorRedo.setOnClickListener(this@EditorFragment)
+            editorUndo.setOnClickListener(this@EditorFragment)
+        }
 
-        binding.include.button1.tag = EditorViewModel.RadioGroupType.Synonyms
-        binding.include.button2.tag = EditorViewModel.RadioGroupType.Antonyms
-        binding.include.button3.tag = EditorViewModel.RadioGroupType.Rhymes
-        binding.editorSwitch.setOnClickListener(this)
-        binding.contentTextview.onWordClickedListener = onWordClickedListener()
+
 
         viewModel.wordResult.observe(viewLifecycleOwner) {
             println(it)
@@ -42,14 +47,19 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
     }
 
     override fun onClick(clickedView: View?) {
-        if (clickedView isWithId R.id.editor_switch) {
-            switchMode()
+        when {
+            clickedView isWithId R.id.editor_switch -> {
+                binding.editorViewSwitcher.showNext()
+            }
+            clickedView isWithId R.id.editor_redo -> {
+                viewModel.performRedo()
+            }
+            clickedView isWithId R.id.editor_undo -> {
+                viewModel.performUndo()
+            }
         }
     }
 
-    private fun switchMode() {
-        binding.editorViewSwitcher.showNext()
-    }
 
     private fun onWordClickedListener() = object : TextViewWordMutator.OnWordClickedListener {
         override fun onWordClick(word: String) {

@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivo.ganev.awords.Snapshot
+import com.ivo.ganev.awords.SnapshotStack
 import com.ivo.ganev.awords.extensions.capitalizeFirstLetter
 import com.ivo.ganev.awords.extensions.isFirstCharacterUpperCase
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
@@ -23,7 +25,6 @@ import java.io.IOException
 
 class EditorViewModel : ViewModel() {
     private val datamuseClient = DatamuseKotlinClient()
-
 
     private val _wordResult = MutableLiveData<String>()
     val wordResult: LiveData<String>

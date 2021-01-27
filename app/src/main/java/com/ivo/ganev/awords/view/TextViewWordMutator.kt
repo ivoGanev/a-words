@@ -11,6 +11,8 @@ import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
+import com.ivo.ganev.awords.Snapshot
+import com.ivo.ganev.awords.SnapshotStack
 import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
 
 /**
@@ -21,9 +23,11 @@ import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
  * You can also replace the selected word with [replaceSelectedWord].
  * */
 class TextViewWordMutator :
-    AppCompatTextView {
+        AppCompatTextView {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+
+    val snapshotStack: SnapshotStack<Word> = SnapshotStack()
 
     /**
      * This listener will be notified when any part of the TextView's
@@ -59,10 +63,10 @@ class TextViewWordMutator :
      * or selection which the user made.
      * */
     private fun selectedWord(): String =
-        when (isLegalSelection()) {
-            true -> text.subSequence(selectionStart, selectionEnd).toString()
-            false -> ""
-        }
+            when (isLegalSelection()) {
+                true -> text.subSequence(selectionStart, selectionEnd).toString()
+                false -> ""
+            }
 
     /**
      * Sets the text and ads a clickable span excluding "space" characters, meaning
@@ -78,6 +82,15 @@ class TextViewWordMutator :
         super.setText(spannableString)
     }
 
+
+    fun undoReplaceWord() {
+
+    }
+
+    fun redoReplaceWord() {
+
+    }
+
     /**
      * Replaces the selected word from the text view and adds a clickable span to it.
      * "Space" characters won't be included as in [setClickableText]
@@ -88,6 +101,7 @@ class TextViewWordMutator :
         if (isLegalSelection()) {
             text = spannableStringBuilder.apply {
                 replace(selectionStart, selectionEnd, replacement) // replace only the selected word string
+                snapshotStack.push(Word(selectionStart, selectionEnd, replacement))
                 clearSpans()
                 // TODO: Possibly create a more efficient algorithm to replace the spans.
                 //       Also I haven't checked the performance but for each span there is a clickableSpan object
@@ -112,4 +126,14 @@ class TextViewWordMutator :
     interface OnWordClickedListener {
         fun onWordClick(word: String)
     }
+
+    data class Word(val selectionStart: Int,
+                    val selectionEnd: Int,
+                    val word: String) : Snapshot<Word> {
+        override fun restore(): Word {
+            return this
+        }
+    }
+
+
 }
