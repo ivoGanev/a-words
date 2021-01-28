@@ -52,10 +52,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
                 binding.editorViewSwitcher.showNext()
             }
             clickedView isWithId R.id.editor_redo -> {
-                viewModel.performRedo()
+               // viewModel.performRedo()
             }
             clickedView isWithId R.id.editor_undo -> {
-                viewModel.performUndo()
+              //  viewModel.performUndo()
             }
         }
     }
