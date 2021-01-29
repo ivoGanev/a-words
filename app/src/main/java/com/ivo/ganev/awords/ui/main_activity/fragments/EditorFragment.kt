@@ -2,10 +2,8 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -13,7 +11,6 @@ import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.view.TextViewWordMutator
-import com.ivo.ganev.datamuse_kotlin.response.WordResponse.Element.Word
 
 class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener {
     private val viewModel: EditorViewModel by viewModels()
@@ -52,10 +49,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
                 binding.editorViewSwitcher.showNext()
             }
             clickedView isWithId R.id.editor_redo -> {
-               // viewModel.performRedo()
+              // binding.contentTextview.redoReplacedWord()
             }
             clickedView isWithId R.id.editor_undo -> {
-              //  viewModel.performUndo()
+                binding.contentTextview.undoReplacedWord()
             }
         }
     }

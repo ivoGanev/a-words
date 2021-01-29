@@ -1,104 +1,97 @@
 package com.ivo.ganev.awords
 
-import java.lang.IndexOutOfBoundsException
 import java.util.*
 
 /**
  * Interface for representing a non-nullable snapshot.
  * */
 interface Snapshot<T : Any> {
-    fun restore(): T
+    fun storedState(): T
 }
 
-data class Word(
-        val text: String = "",
-        val selectionStart: Int,
-        val selectionEnd: Int
-) : Snapshot<Word> {
-    override fun restore(): Word {
-        return this
-    }
-}
-
-open class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
-    private val snapshots: Stack<Snapshot<T>> = Stack()
-
-    open val size get() = snapshots.size
+class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
+    private val _forwardStack = Stack<Snapshot<T>>()
+    private val _backwardStack = Stack<Snapshot<T>>()
 
     /**
-     * Pushes a [Snapshot] inside the stack until it becomes full.
+     * Returns an immutable reference of the forward stack
      * */
-    open fun push(snapshot: Snapshot<T>): Boolean {
-        if (size < maxSnapshots) {
-            snapshots.push(snapshot)
+    val forwardStack: List<Snapshot<T>>
+        get() = _forwardStack.toList()
+
+    /**
+     * Returns an immutable reference of the forward stack
+     * */
+    val backwardStack: List<Snapshot<T>>
+        get() = _backwardStack.toList()
+
+    /**
+     * Stores a single [Snapshot] inside the stack until the [maxSnapshots]
+     * limit is exceeded.
+     * */
+    fun store(element: Snapshot<T>): Boolean {
+        if (_backwardStack.size < maxSnapshots) {
+            _backwardStack.push(element)
+            _forwardStack.clear()
             return true
         }
         return false
     }
 
     /**
-     *  Tries to pop a single [Snapshot] from the stack. If the stack has no items
-     *  the [block] will not get executed.
+     * Use [block] to operate over the last [Snapshot] of the stack.
+     * This function is silent: it won't throw any exceptions.
      *
-     *  @return True - if the stack has items. False - if there are no items in the stack.
-     *
+     * @return true if the function succeeds, false if it doesn't.
      * */
-    open fun pop(block: (Snapshot<T>) -> Unit): Boolean {
+    fun undo(block: (Snapshot<T>) -> Unit): Boolean {
         return try {
-            val popped = snapshots.pop()
-            block(popped)
+            val element = _backwardStack.pop()
+            _forwardStack.push(element)
+            block(element)
             true
         } catch (ex: EmptyStackException) {
             false
         }
     }
 
-    /**
-     * Removes all elements from the stack.
-     * */
-    open fun clear() {
-        snapshots.clear()
-    }
-
-    open val isNotEmpty: Boolean
-        get() = snapshots.isNotEmpty()
-
-
-}
-
-class UndoableSnapshotStack<T : Any>(maxSnapshots: Int = 10) : SnapshotStack<T>(maxSnapshots) {
-    private val undoStack = SnapshotStack<T>()
 
     /**
-     * Undoes the last stack push. Example:
-     * If the stack was: { Hello, World } and after popping is : { Hello }
-     * then using this command will make the stack { Hello, World } again.
+     * This function will redo the last stack operation.
+     * This function is silent and won't throw any exceptions.
+     *
+     * @return true if the function succeeds, false if it doesn't.
      * */
-    fun undo(block: (Snapshot<T>) -> Unit): Boolean {
-        return undoStack.pop {
-            super.push(it)
-            block(it)
+    fun redo(block: (Snapshot<T>) -> Unit): Boolean {
+        return try {
+            val element = _forwardStack.pop()
+            _backwardStack.push(element)
+            block(element)
+            true
+        } catch (ex: EmptyStackException) {
+            false
         }
     }
 
-    /**
-     * This function will pop the last [Snapshot] and it will record it for
-     * undoing with [undo].
-     * */
-    override fun pop(block: (Snapshot<T>) -> Unit): Boolean {
-        return super.pop {
-            undoStack.push(it)
-            block(it)
-        }
+    fun clear() {
+        _backwardStack.clear()
+        _forwardStack.clear()
     }
 
+    override fun toString() = buildString {
+        appendLine("------------- Backward stack (size: ${_backwardStack.size}) -------------")
+        for (i in 0 until _backwardStack.size)
+            appendLine("$i: ${_backwardStack[i].storedState()}")
+        appendLine("------------- Forward  stack (size: ${_forwardStack.size})-------------")
+        for (i in 0 until _forwardStack.size)
+            appendLine("$i: ${_forwardStack[i].storedState()}")
+    }
+
+
     /**
-     * Removes all elements from the stack. This will wipe out all
-     * the elements that are kept in memory for the [undo] operation
-     * as well.
+     * Returns an immutable reference of the backward stack
      * */
-    override fun clear() {
-        undoStack.clear()
-        super.clear()
+    fun backwardStack(): List<Snapshot<T>> {
+        return _backwardStack.toList()
     }
 }
