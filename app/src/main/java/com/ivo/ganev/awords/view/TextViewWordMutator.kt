@@ -8,8 +8,8 @@ import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
-import com.ivo.ganev.awords.SpannableStringBuilderUndoable
-import com.ivo.ganev.awords.SpannableStringBuilderUndoable.*
+import com.ivo.ganev.awords.SpannableStringCaretaker
+import com.ivo.ganev.awords.SpannableStringCaretaker.*
 import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
 
 /**
@@ -24,7 +24,7 @@ class TextViewWordMutator :
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    lateinit var builder: SpannableStringBuilderUndoable
+    lateinit var builder: SpannableStringCaretaker
 
     /**
      * This listener will be notified when any part of the TextView's
@@ -43,7 +43,7 @@ class TextViewWordMutator :
         setText(text, BufferType.SPANNABLE)
         setSpannableFactory(spannableFactory)
 
-        builder = SpannableStringBuilderUndoable(text)
+        builder = SpannableStringCaretaker(text)
 
         setClickableText(text)
     }
@@ -97,14 +97,14 @@ class TextViewWordMutator :
 //    }
 
     private fun replaceWord(start: Int, end: Int, replacement: String) {
-        text = builder.replaceAndRecordUndo(
-            WordSelection(
-                clickableSpan(),
-                replacement,
-                start,
-                end
-            )
-        )
+//        text = builder.replace(
+//            WordSelection(
+//                clickableSpan(),
+//                replacement,
+//                start,
+//                end
+//            )
+//        )
     }
 
     /**

@@ -13,6 +13,10 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
     private val _forwardStack = Stack<Snapshot<T>>()
     private val _backwardStack = Stack<Snapshot<T>>()
 
+    enum class StackType {
+        Forward,
+        Backward
+    }
     /**
      * Returns an immutable reference of the forward stack
      * */
@@ -24,6 +28,15 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
      * */
     val backwardStack: List<Snapshot<T>>
         get() = _backwardStack.toList()
+
+    /**
+    * Looks at the object at the top of this stack without removing it
+    * from the stack.
+    **/
+    fun peek(stackType: StackType): Snapshot<T> = when(stackType) {
+        StackType.Forward -> _forwardStack.peek()
+        StackType.Backward -> _backwardStack.peek()
+    }
 
     /**
      * Stores a single [Snapshot] inside the stack until the [maxSnapshots]
@@ -73,6 +86,9 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
         }
     }
 
+    /**
+     * Clears the backward and forward stack.
+     * */
     fun clear() {
         _backwardStack.clear()
         _forwardStack.clear()
@@ -85,13 +101,5 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
         appendLine("------------- Forward  stack (size: ${_forwardStack.size})-------------")
         for (i in 0 until _forwardStack.size)
             appendLine("$i: ${_forwardStack[i].storedState()}")
-    }
-
-
-    /**
-     * Returns an immutable reference of the backward stack
-     * */
-    fun backwardStack(): List<Snapshot<T>> {
-        return _backwardStack.toList()
     }
 }
