@@ -13,29 +13,26 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
     private val _forwardStack = Stack<Snapshot<T>>()
     private val _backwardStack = Stack<Snapshot<T>>()
 
-    enum class StackType {
-        Forward,
-        Backward
+    /**
+     * Looks at the object at the top of the backward stack without removing it
+     * from the stack.
+     **/
+    fun peekBackward(backward: (Snapshot<T>)->Unit) : Boolean {
+        return try {
+            backward(_backwardStack.peek())
+            true
+        } catch (ex: EmptyStackException) {
+            false
+        }
     }
-    /**
-     * Returns an immutable reference of the forward stack
-     * */
-    val forwardStack: List<Snapshot<T>>
-        get() = _forwardStack.toList()
 
-    /**
-     * Returns an immutable reference of the forward stack
-     * */
-    val backwardStack: List<Snapshot<T>>
-        get() = _backwardStack.toList()
-
-    /**
-    * Looks at the object at the top of this stack without removing it
-    * from the stack.
-    **/
-    fun peek(stackType: StackType): Snapshot<T> = when(stackType) {
-        StackType.Forward -> _forwardStack.peek()
-        StackType.Backward -> _backwardStack.peek()
+    fun peekForward(forward: (Snapshot<T>)->Unit) : Boolean {
+        return try {
+            forward(_forwardStack.peek())
+            true
+        } catch (ex: EmptyStackException) {
+            false
+        }
     }
 
     /**
@@ -96,10 +93,10 @@ class SnapshotStack<T : Any>(private val maxSnapshots: Int = 10) {
 
     override fun toString() = buildString {
         appendLine("------------- Backward stack (size: ${_backwardStack.size}) -------------")
-        for (i in 0 until _backwardStack.size)
+        for (i in  _backwardStack.size-1 downTo 0)
             appendLine("$i: ${_backwardStack[i].storedState()}")
         appendLine("------------- Forward  stack (size: ${_forwardStack.size})-------------")
-        for (i in 0 until _forwardStack.size)
+        for (i in _forwardStack.size-1 downTo 0 )
             appendLine("$i: ${_forwardStack[i].storedState()}")
     }
 }

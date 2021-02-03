@@ -1,6 +1,7 @@
 package com.ivo.ganev.awords
 
 import org.junit.Test
+import java.util.*
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -12,38 +13,13 @@ class SnapshotStackTest {
         }
     }
 
-    private val first = StringSnapshot("one")
-    private val second = StringSnapshot("two")
-    private val third = StringSnapshot("three")
+    private val first = StringSnapshot("a")
+    private val second = StringSnapshot("b")
+    private val third = StringSnapshot("c")
 
+    @Test
     fun `test undoable stack's undo and redo implementations`() {
-        // ***************************************** Test *************************************
-        //             cp       backward                    forward
-        //                      stack                       stack
-        // 1. store(a)          { a }                       { }
-        // 2. store(b)          { b, a }                    { }
-        // 3. undo              { a }                       { b }
-        // ** Wrong **
-        // 4. store(c)          { c, a }                    { b } <- if we don't clear the forward stack on pushing
-        //                                                  then we'll end up with really awkward history. See bellow:
-        // 5. undo              { push(c), a }  -- c ->    { c, b }
-        // 6. redo              { c, a }        <- c --    { pop(c), b  }
-        // 7. redo              { b, c, a }     <- b --    { pop(b) }
-        //
-        // ** Correct **
-        // 4. store(c)          { c, a }                   { clear() }  <- this time the forward stack is cleared.
-        // 5. undo              { push(c), a }  -- c ->    { c }
-        // 6. redo              { c, a }        <- c --    { pop(c) }
-        // 7. redo              { c, a }                   { }
-        // 8. undo              { pop(c), a }   -- c ->    { c }
-        // 9. undo              { pop(a) }      -- a ->    { c, a}
-        // 10.undo              { }                        { c, a }
-
-        // on undo -> push
-    }
-//    @Test
-//    fun `test undoable stack's undo and redo implementations`() {
-//        // Testing implementations:
+        //        // Testing implementations:
 //        // undo()  - backward stack transfers its last element to the forward stack giving it as a result.
 //        // push()  - stores the element in the backward stack and clears the forward stack otherwise the history would be quite awkward.
 //        // redo()  - moves the last element of the forward stack to the backward stack and return the value.
@@ -69,6 +45,25 @@ class SnapshotStackTest {
 //        // 8. undo     { pop(c), a }   -- c ->    { c }
 //        // 9. undo     { pop(a) }      -- a ->    { c, a}
 //        // 10.undo     { }                        { c, a }
+        val snapshotStack = SnapshotStack<String>(3)
+        snapshotStack.store(first)
+        snapshotStack.store(second)
+        snapshotStack.store(third)
+
+        snapshotStack.undo {
+            println("\n${it.storedState()}")
+        }
+
+        snapshotStack.redo {
+            println("\n${it.storedState()}")
+        }
+
+        print(snapshotStack)
+    }
+
+//    @Test
+//    fun `test undoable stack's undo and redo implementations`() {
+
 //
 //        // 1.
 //        val snapshotStack = SnapshotStack<String>(3)
