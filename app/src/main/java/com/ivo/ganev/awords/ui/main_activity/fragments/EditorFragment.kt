@@ -6,6 +6,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
@@ -31,8 +32,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
             editorRedo.setOnClickListener(this@EditorFragment)
             editorUndo.setOnClickListener(this@EditorFragment)
         }
-
-
 
         viewModel.wordResult.observe(viewLifecycleOwner) {
             println(it)

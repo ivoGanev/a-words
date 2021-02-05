@@ -84,7 +84,7 @@ class TextViewWordMutator :
 
 
     fun undoReplacedWord() {
-        builder.undo()
+    //    builder.undo()
         text = builder.toString()
     }
 //
