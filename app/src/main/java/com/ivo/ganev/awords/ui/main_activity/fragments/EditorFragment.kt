@@ -48,10 +48,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
                 binding.editorViewSwitcher.showNext()
             }
             clickedView isWithId R.id.editor_redo -> {
-              // binding.contentTextview.redoReplacedWord()
+                binding.contentTextview.redo()
             }
             clickedView isWithId R.id.editor_undo -> {
-                binding.contentTextview.undoReplacedWord()
+                binding.contentTextview.undo()
             }
         }
     }

@@ -10,7 +10,6 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import com.ivo.ganev.awords.SpannableStringCaretaker
 import com.ivo.ganev.awords.SpannableStringCaretaker.*
-import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
 
 /**
  * A clickable text view which assists in transformation(mutation) of separate words within
@@ -24,7 +23,7 @@ class TextViewWordMutator :
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
-    lateinit var builder: SpannableStringCaretaker
+    lateinit var caretaker: SpannableStringCaretaker
 
     /**
      * This listener will be notified when any part of the TextView's
@@ -42,9 +41,6 @@ class TextViewWordMutator :
         movementMethod = LinkMovementMethod.getInstance()
         setText(text, BufferType.SPANNABLE)
         setSpannableFactory(spannableFactory)
-
-        builder = SpannableStringCaretaker(text)
-
         setClickableText(text)
     }
 
@@ -73,38 +69,21 @@ class TextViewWordMutator :
      * that only words will be clickable.
      * */
     fun setClickableText(text: CharSequence) {
-        val spannableString = SpannableString(text)
-        spannableString.setClickableSpanToAllWords { clickableSpan() }
-
-        // when you set the text = "something" you create a new copy of it in memory with the factory.
-        // But what also happens is the Factory creates a new SpannableString() every time we call setText()
-        // instead of creating it we cast the text(CharSequence) as Spannable and set the text to it.
-        super.setText(spannableString)
+        caretaker = SpannableStringCaretaker(text) { clickableSpan() }
+        super.setText(caretaker.toSpannableStringBuilder())
     }
 
 
-    fun undoReplacedWord() {
-    //    builder.undo()
-        text = builder.toString()
+    fun redo() {
+        text = caretaker.redo()
     }
-//
-//    fun redoReplacedWord() {
-//        snapshotStack.undo {
-//            with(it.storedState()) {
-//                replaceWord(this.selectionStart, this.selectionEnd,this.word)
-//            }
-//        }
-//    }
+
+    fun undo() {
+        text = caretaker.undo()
+    }
 
     private fun replaceWord(start: Int, end: Int, replacement: String) {
-//        text = builder.replace(
-//            WordSelection(
-//                clickableSpan(),
-//                replacement,
-//                start,
-//                end
-//            )
-//        )
+        text = caretaker.replace(start, end, replacement)
     }
 
     /**

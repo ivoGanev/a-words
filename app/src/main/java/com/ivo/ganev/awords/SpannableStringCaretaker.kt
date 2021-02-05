@@ -1,6 +1,9 @@
 package com.ivo.ganev.awords
 
+import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.style.ClickableSpan
+import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
 import com.ivo.ganev.dp_state.DiscretePartitionedState
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
@@ -11,53 +14,64 @@ import java.lang.IndexOutOfBoundsException
  * clickable spans. Ideally this could be cached and only
  * words will be replaced.
  * */
-class SpannableStringCaretaker(text: CharSequence) {
+class SpannableStringCaretaker(text: CharSequence, val clickableSpan: () -> ClickableSpan) {
     private val buffer = SpannableStringBuilder(text)
-    val partitionedState = DiscretePartitionedState<Word>()
-    var lastEditPosition = -1
+    private val partitionedState = DiscretePartitionedState<WordState>()
+    private var lastEditPosition = -1
+
+    private var isTraversing = false
+
+    init {
+        buffer.setClickableSpanToAllWords { clickableSpan() }
+        partitionedState.clear()
+    }
+
+    fun toSpannableStringBuilder() = buffer
 
     /**
      * Returns the replaced word as a selection
      * */
-    fun replace(start: Int, end: Int, replacement: String) {
-        var nextRow = false
-        try {
-            partitionedState.current()
-        } catch (ex: IndexOutOfBoundsException) {
-            nextRow = true
-        } finally {
-            val toReplace = buffer.substring(start, end)
-
-            nextRow = lastEditPosition != start
-            if (nextRow) {
-                partitionedState.push(Word(toReplace, start))
-            }
+    fun replace(start: Int, end: Int, replacement: String): SpannableStringBuilder {
+        if(isTraversing) {
+            partitionedState.clear()
+            isTraversing = false
+            lastEditPosition = -1
         }
-        partitionedState.add(Word(replacement, start))
+
+        val toReplace = buffer.substring(start, end)
+        if (lastEditPosition != start) {
+            partitionedState.push(WordState(toReplace, start))
+        }
+        partitionedState.add(WordState(replacement, start))
         lastEditPosition = start
 
-        buffer.apply {
+        return buffer.replaceImpl(start, end, replacement)
+    }
+
+    private fun SpannableStringBuilder.replaceImpl(
+        start: Int,
+        end: Int,
+        replacement: String,
+    ): SpannableStringBuilder {
+        return this.apply {
             replace(start, end, replacement)
-            clearSpans()
+            setSpan(clickableSpan(), start, start + replacement.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
+
 
     fun undo(): SpannableStringBuilder {
         try {
             val current = partitionedState.current()
             val restored = partitionedState.left()
             val peek = partitionedState.peekRight()
-
             val end = pickEnd(restored, current, peek)
 
-            buffer.apply {
-                replace(restored.start, end, restored.word)
-                clearSpans()
-            }
+            buffer.replaceImpl(restored.start, end, restored.word)
         } catch (ex: IndexOutOfBoundsException) {
             Timber.e(ex)
         }
-
+        isTraversing = true
         return buffer
     }
 
@@ -66,13 +80,9 @@ class SpannableStringCaretaker(text: CharSequence) {
             val current = partitionedState.current()
             val restored = partitionedState.right()
             val peek = partitionedState.peekLeft()
-
             val end = pickEnd(restored, current, peek)
 
-            buffer.apply {
-                replace(restored.start, end, restored.word)
-                clearSpans()
-            }
+            buffer.replaceImpl(restored.start, end, restored.word)
         } catch (ex: IndexOutOfBoundsException) {
             Timber.e(ex)
         }
@@ -81,9 +91,9 @@ class SpannableStringCaretaker(text: CharSequence) {
     }
 
     private fun pickEnd(
-        restored: Word,
-        current: Word,
-        peek: Word
+        restored: WordState,
+        current: WordState,
+        peek: WordState
     ) = if (restored.start != current.start) {
         peek.start + peek.word.length
     } else {
@@ -94,12 +104,12 @@ class SpannableStringCaretaker(text: CharSequence) {
         return buffer.toString()
     }
 
-    data class Word(
+    data class WordState(
         var word: String,
         var start: Int,
     ) {
         companion object {
-            fun empty() = Word(
+            fun empty() = WordState(
                 start = -1, word = ""
             )
         }
@@ -108,4 +118,6 @@ class SpannableStringCaretaker(text: CharSequence) {
             return "{ word: $word, start: $start }"
         }
     }
+
+
 }

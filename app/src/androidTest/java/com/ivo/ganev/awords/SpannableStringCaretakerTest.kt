@@ -8,6 +8,13 @@ import kotlin.test.assertEquals
 
 
 class SpannableStringCaretakerTest {
+    fun  clickableSpan() =
+        object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                TODO("Not yet implemented")
+            }
+        }
+
     @Suppress("SpellCheckingInspection")
     @Test
     fun test() {
@@ -29,7 +36,9 @@ class SpannableStringCaretakerTest {
         // 8           two->(three) two
         // 9           three        (two)->three
         val sentence = "$one $two $three $four"
-        val caretaker = SpannableStringCaretaker(sentence)
+
+
+        val caretaker = SpannableStringCaretaker(sentence) { clickableSpan() }
 
         caretaker.undo()
 
@@ -48,10 +57,10 @@ class SpannableStringCaretakerTest {
 
         //4.
         caretaker.undo()
-        assertEquals( "$three $two $three $four", caretaker.toString())
+        assertEquals("$three $two $three $four", caretaker.toString())
 
         println(caretaker.undo())
-        assertEquals( "$two $two $three $four", caretaker.toString())
+        assertEquals("$two $two $three $four", caretaker.toString())
 
         caretaker.undo()
         assertEquals("$one $two $three $four", caretaker.toString())
