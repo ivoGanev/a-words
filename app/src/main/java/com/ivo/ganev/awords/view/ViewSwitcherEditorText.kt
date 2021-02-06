@@ -3,6 +3,7 @@ package com.ivo.ganev.awords.view
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.ViewSwitcher
 
@@ -25,5 +26,15 @@ class ViewSwitcherEditorText : ViewSwitcher {
             currentView.copyText(nextView)
             super.setDisplayedChild(whichChild)
         }
+    }
+
+    fun setText(text: String) {
+        val v = currentView
+        if (v is TextViewWordMutator) v.setClickableText(text)
+        else if (v is EditText) v.setText(text)
+    }
+
+    fun getText() : String {
+        return (currentView as TextView).text.toString()
     }
 }

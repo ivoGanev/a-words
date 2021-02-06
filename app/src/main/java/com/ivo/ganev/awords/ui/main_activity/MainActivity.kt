@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
         setSupportActionBar(binding.mainToolbar)
         setupActionBarWithNavController(navController)
         binding.mainToolbar.setupWithNavController(navController, appBarConfiguration)

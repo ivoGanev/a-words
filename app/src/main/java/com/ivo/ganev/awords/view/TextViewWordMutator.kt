@@ -70,7 +70,7 @@ class TextViewWordMutator :
      * */
     fun setClickableText(text: CharSequence) {
         caretaker = SpannableStringCaretaker(text) { clickableSpan() }
-        super.setText(caretaker.toSpannableStringBuilder())
+        this.text = caretaker.toSpannableStringBuilder()
     }
 
 

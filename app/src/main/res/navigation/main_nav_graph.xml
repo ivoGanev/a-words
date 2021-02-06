@@ -20,7 +20,7 @@
         android:label="Editor"
         tools:layout="@layout/fragment_editor" >
         <argument
-            android:name="content"
-            app:argType="string" />
+            android:name="editorFragmentArgs"
+            app:argType="com.ivo.ganev.awords.EditorFragmentArguments" />
     </fragment>
 </navigation>

@@ -82,20 +82,4 @@ class EditorViewModel : ViewModel() {
             })
         }
     }
-
-    fun save(context: Context, uri: Uri?, text: String) {
-        try {
-            if (uri != null) {
-                val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "w")
-                val outputStream = FileOutputStream(parcelFileDescriptor?.fileDescriptor)
-                outputStream.write(text.encodeToByteArray())
-                outputStream.close()
-                parcelFileDescriptor?.close()
-            }
-        } catch (ex: FileNotFoundException) {
-            TODO()
-        } catch (ex: IOException) {
-            TODO()
-        }
-    }
 }

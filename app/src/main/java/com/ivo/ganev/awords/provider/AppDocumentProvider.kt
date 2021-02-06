@@ -112,7 +112,6 @@ class AppDocumentProvider : DocumentsProvider() {
 
             // This document id cannot change after it's shared.
             add(Root.COLUMN_DOCUMENT_ID, getDocIdForFile(baseDir))
-            println(getDocIdForFile(baseDir))
             // The child MIME types are used to filter the roots and only present to the
             // user those roots that contain the desired type somewhere in their file hierarchy.
             add(Root.COLUMN_MIME_TYPES, mimeTypes)
