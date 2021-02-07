@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.FileHandler
 import com.ivo.ganev.awords.R
+import com.ivo.ganev.awords.SpaceTokenizer
 import com.ivo.ganev.awords.TextChangeBroadcast
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.isWithId
@@ -41,7 +42,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
 
             editorEditText.apply {
                 setAdapter(arrayAdapter)
-                setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+                setTokenizer(SpaceTokenizer())
                 addTextChangedListener(this@EditorFragment)
             }
 
@@ -96,7 +97,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
         with(binding.editorEditText)
         {
             if (enoughToFilter()) {
-                val tokenizer = MultiAutoCompleteTextView.CommaTokenizer()
+                val tokenizer = SpaceTokenizer()
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
