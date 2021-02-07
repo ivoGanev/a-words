@@ -55,7 +55,10 @@ class SpannableStringCaretaker(text: CharSequence, val clickableSpan: () -> Clic
     ): SpannableStringBuilder {
         return this.apply {
             replace(start, end, replacement)
-            setSpan(clickableSpan(), start, start + replacement.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            //setSpan(clickableSpan(), start, start + replacement.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            // TODO: Just set the current span instead of rebuilding the entire string span
+            clearSpans()
+            setClickableSpanToAllWords { clickableSpan() }
         }
     }
 

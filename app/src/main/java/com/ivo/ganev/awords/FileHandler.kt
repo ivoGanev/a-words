@@ -51,6 +51,7 @@ class FileHandler(
     private fun save() {
         try {
             val text = textViews.getText()
+            println("Saving..$text")
             outputStream.write(text.encodeToByteArray())
         } catch (ex: FileNotFoundException) {
             Timber.e(ex)
@@ -67,13 +68,16 @@ class FileHandler(
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     fun onPause() {
         save()
+        closeStreams()
+    }
+
+    private fun closeStreams() {
         outputStream.close()
         parcelFileDescriptor.close()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
-        debug("resume")
         if (args.fileUri != null) {
             loadFile()
 

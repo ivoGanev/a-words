@@ -9,7 +9,7 @@
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@+id/include"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/outlined_rounded_rectangle"
                 android:padding="12dp"
-                android:textSize="15sp" />
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/editor_edit_text"

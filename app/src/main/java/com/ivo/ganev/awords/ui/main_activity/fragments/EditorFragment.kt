@@ -79,6 +79,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener 
         override fun onWordClick(word: String) {
             val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
             val type = requireActivity().findViewById<RadioButton>(checkedId).tag
+            println("Query: $word")
             viewModel.query(word, type as EditorViewModel.RadioGroupType)
         }
     }
