@@ -1,15 +1,9 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivo.ganev.awords.Snapshot
-import com.ivo.ganev.awords.SnapshotStack
-import com.ivo.ganev.awords.extensions.capitalizeFirstLetter
-import com.ivo.ganev.awords.extensions.isFirstCharacterUpperCase
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint
@@ -19,15 +13,12 @@ import com.ivo.ganev.datamuse_kotlin.endpoint.words.hardConstraintsOf
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 import com.ivo.ganev.datamuse_kotlin.response.WordResponse
 import kotlinx.coroutines.launch
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
 
 class EditorViewModel : ViewModel() {
     private val datamuseClient = DatamuseKotlinClient()
 
-    private val _wordResult = MutableLiveData<String>()
-    val wordResult: LiveData<String>
+    private val _wordResult = MutableLiveData<List<String>>()
+    val wordResult: LiveData<List<String>>
         get() = _wordResult
 
     private val _failure = MutableLiveData<RemoteFailure>()
@@ -64,22 +55,18 @@ class EditorViewModel : ViewModel() {
 
         viewModelScope.launch {
             val words = datamuseClient.query(query.build())
-            words.applyEither({ _failure.postValue(it) }, { wordResponses ->
-                val randomWord = wordResponses
+            val wordResponseToList: (Set<WordResponse>) -> List<String> = { wordResponse ->
+                wordResponse
                     .flatMap { it.elements }
                     .filterIsInstance<WordResponse.Element.Word>()
-                    .takeIf { it.isNotEmpty() }
-                    ?.random()
-                    ?.word
+                    .map { it.word }
+            }
 
-                if (randomWord != null) {
-                    if (word.isFirstCharacterUpperCase())
-                        _wordResult.postValue(randomWord.capitalizeFirstLetter())
-                    else
-                        _wordResult.postValue(randomWord)
-                } else
-                    _wordResult.postValue("")
-            })
+            words.applyEither({ _failure.postValue(it) }, { _wordResult.set(wordResponseToList(it)) })
         }
+    }
+
+    private fun MutableLiveData<List<String>>.set(list: List<String>) {
+        value = list
     }
 }

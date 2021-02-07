@@ -31,10 +31,11 @@
                 android:padding="12dp"
                 android:textSize="18sp" />
 
-            <EditText
+            <MultiAutoCompleteTextView
                 android:id="@+id/editor_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+             />
 
         </com.ivo.ganev.awords.view.ViewSwitcherEditorText>
 
