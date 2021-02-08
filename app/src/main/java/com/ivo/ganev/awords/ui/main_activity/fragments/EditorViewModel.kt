@@ -26,6 +26,13 @@ class EditorViewModel : ViewModel() {
     val failure: LiveData<RemoteFailure>
         get() = _failure
 
+    enum class RandomType {
+        Noun,
+        Adjective,
+        Adverb,
+        Verb
+    }
+
     enum class DatamuseType {
         Synonyms {
             override fun toConstraint(word: String): List<HardConstraint> {

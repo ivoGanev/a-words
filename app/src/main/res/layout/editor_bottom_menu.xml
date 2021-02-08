@@ -13,13 +13,12 @@
 
     <GridLayout
         android:id="@+id/editor_datamuse_grid"
-        android:background="@drawable/outlined_rounded_rectangle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:rowCount="2"
+        android:background="@drawable/outlined_rounded_rectangle"
         android:columnCount="3"
+        android:rowCount="2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <CheckBox
@@ -83,64 +82,44 @@
             app:layout_constraintStart_toStartOf="parent" />
     </GridLayout>
 
-    <RadioGroup
-        android:visibility="gone"
-        android:id="@+id/editor_radio_group"
+    <GridLayout
+        android:background="@drawable/outlined_rounded_rectangle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/outlined_rounded_rectangle"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:padding="1dp"
+        android:columnCount="2"
+        android:rowCount="2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <RadioButton
-            android:id="@+id/button1"
-            android:layout_width="100dp"
+        <CheckBox
+            android:id="@+id/editor_popup_random_noun"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="@string/synonyms"
-            android:checked="true"
-            android:gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingTop="3dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="3dp"
-            android:textColor="@color/dark_gray"/>
-
-        <RadioButton
-            android:id="@+id/button2"
-            android:layout_width="100dp"
+            android:text="NOUN" />
+        <CheckBox
+            android:id="@+id/editor_popup_random_adj"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="@string/antonyms"
-            android:gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingTop="3dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="3dp"
-            android:textColor="@color/dark_gray"/>
-
-        <RadioButton
-            android:id="@+id/button3"
-            android:layout_width="100dp"
+            android:text="ADJ" />
+        <CheckBox
+            android:id="@+id/editor_popup_random_verb"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="@string/rhymes"
-            android:gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingTop="3dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="3dp"
-            android:textColor="@color/dark_gray" />
-    </RadioGroup>
+            android:text="VERB" />
+        <CheckBox
+            android:id="@+id/editor_popup_random_adverb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="ADVERB" />
+    </GridLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
