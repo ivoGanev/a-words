@@ -10,7 +10,81 @@
     app:layout_constraintStart_toStartOf="parent"
     tools:showIn="@layout/fragment_editor">
 
+
+    <GridLayout
+        android:id="@+id/editor_datamuse_grid"
+        android:background="@drawable/outlined_rounded_rectangle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rowCount="2"
+        android:columnCount="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_syn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="SYN"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_ant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="ANT"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_rhy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="RHY"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_hom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="HOM"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_pop_adj"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="POPADJ"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <CheckBox
+            android:id="@+id/editor_popup_datamuse_pop_noun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button"
+            android:button="@android:color/transparent"
+            android:text="POPN"
+            app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
+            app:layout_constraintStart_toStartOf="parent" />
+    </GridLayout>
+
     <RadioGroup
+        android:visibility="gone"
         android:id="@+id/editor_radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +98,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
-
 
         <RadioButton
             android:id="@+id/button1"

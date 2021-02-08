@@ -1,7 +1,6 @@
 package com.ivo.ganev.awords
 
 import android.content.Context
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -9,8 +8,10 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.ivo.ganev.awords.view.ViewSwitcherEditorText
 import timber.log.Timber
 import java.io.*
-import timber.log.Timber.d as d1
-import timber.log.Timber.d as debug
+
+interface FileSaver {
+    fun save()
+}
 
 /**
  * Handle loading and saving the files
@@ -19,7 +20,7 @@ class FileHandler(
     val context: Context,
     val args: EditorFragmentArguments,
     val textViews: ViewSwitcherEditorText
-) : LifecycleObserver, TextChangeBroadcast.OnTextChangeListener {
+) : LifecycleObserver, FileSaver {
 
     enum class Action {
         CREATE,
@@ -28,6 +29,7 @@ class FileHandler(
 
     private lateinit var parcelFileDescriptor: ParcelFileDescriptor
     private lateinit var outputStream: FileOutputStream
+    private lateinit var inputStream: FileInputStream
 
     private fun loadFile(): Boolean {
         try {
@@ -48,21 +50,18 @@ class FileHandler(
         return true
     }
 
-    private fun save() {
-        try {
-            val text = textViews.getText()
-            println("Saving..$text")
-            outputStream.write(text.encodeToByteArray())
-        } catch (ex: FileNotFoundException) {
-            Timber.e(ex)
-        } catch (ex: IOException) {
-            Timber.e(ex)
+    override fun save() {
+        if(::outputStream.isInitialized) {
+            try {
+                val text = textViews.getText()
+                println("Saving..$text")
+                outputStream.write(text.encodeToByteArray())
+            } catch (ex: FileNotFoundException) {
+                Timber.e(ex)
+            } catch (ex: IOException) {
+                Timber.e(ex)
+            }
         }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate() {
-
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -84,14 +83,9 @@ class FileHandler(
             parcelFileDescriptor = context
                 .contentResolver
                 .openFileDescriptor(args.fileUri, "w")!!
-
             outputStream = FileOutputStream(parcelFileDescriptor.fileDescriptor)
         } else {
             Timber.e("No file arguments found.")
         }
-    }
-
-    override fun onTextChange(text: CharSequence) {
-        save()
     }
 }

@@ -12,6 +12,7 @@ import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint.RelatedWords.
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.hardConstraintsOf
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 import com.ivo.ganev.datamuse_kotlin.response.WordResponse
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class EditorViewModel : ViewModel() {
@@ -25,7 +26,7 @@ class EditorViewModel : ViewModel() {
     val failure: LiveData<RemoteFailure>
         get() = _failure
 
-    enum class RadioGroupType {
+    enum class DatamuseType {
         Synonyms {
             override fun toConstraint(word: String): List<HardConstraint> {
                 return hardConstraintsOf(RelatedWords(SYNONYMS, word))
@@ -40,6 +41,21 @@ class EditorViewModel : ViewModel() {
             override fun toConstraint(word: String): List<HardConstraint> {
                 return hardConstraintsOf(RelatedWords(RHYMES, word))
             }
+        },
+        Homophones {
+            override fun toConstraint(word: String): List<HardConstraint> {
+                return hardConstraintsOf(RelatedWords(HOMOPHONES, word))
+            }
+        },
+        PopularAdjectives {
+            override fun toConstraint(word: String): List<HardConstraint> {
+                return hardConstraintsOf(RelatedWords(POPULAR_ADJECTIVES, word))
+            }
+        },
+        PopularNoun {
+            override fun toConstraint(word: String): List<HardConstraint> {
+                return hardConstraintsOf(RelatedWords(POPULAR_NOUNS, word))
+            }
         };
 
         abstract fun toConstraint(word: String): List<HardConstraint>
@@ -48,25 +64,59 @@ class EditorViewModel : ViewModel() {
     /**
      * Will query Datamuse and update [word] or [failure] accordingly.
      * */
-    fun query(word: String, radioGroupType: RadioGroupType) {
-        val query = wordsBuilder {
-            hardConstraints = radioGroupType.toConstraint(word)
+    fun query(word: String, datamuseType: List<DatamuseType>) {
+        val typeList = datamuseType.map {
+            wordsBuilder {
+                hardConstraints = it.toConstraint(word)
+                maxResults = 10
+            }
+        }
+
+        datamuseType.forEach {
+            println(datamuseType)
         }
 
         viewModelScope.launch {
-            val words = datamuseClient.query(query.build())
-            val wordResponseToList: (Set<WordResponse>) -> List<String> = { wordResponse ->
-                wordResponse
-                    .flatMap { it.elements }
-                    .filterIsInstance<WordResponse.Element.Word>()
-                    .map { it.word }
+            val result = typeList.map {
+                val result = async {
+                    datamuseClient.query(it.build())
+                }
+                result.await()
             }
 
-            words.applyEither({ _failure.postValue(it) }, { _wordResult.set(wordResponseToList(it)) })
+            val allResults = mutableListOf<String>()
+
+            for (r in result) {
+                val wordResponseToList: (Set<WordResponse>) -> List<String> = { wordResponse ->
+                    wordResponse
+                        .flatMap { it.elements }
+                        .filterIsInstance<WordResponse.Element.Word>()
+                        .map { it.word }
+                }
+
+                r.applyEither(
+                    { _failure.postValue(it) },
+                    { allResults.addAll(wordResponseToList(it)) })
+            }
+
+            println(":::::$allResults")
+            _wordResult.set(allResults)
+        }
+
+            //val words = datamuseClient.query(query.build())
+//            val wordResponseToList: (Set<WordResponse>) -> List<String> = { wordResponse ->
+//                wordResponse
+//                    .flatMap { it.elements }
+//                    .filterIsInstance<WordResponse.Element.Word>()
+//                    .map { it.word }
+//            }
+//            words.applyEither(
+//                { _failure.postValue(it) },
+//                { _wordResult.set(wordResponseToList(it)) })
         }
     }
 
     private fun MutableLiveData<List<String>>.set(list: List<String>) {
         value = list
     }
-}
+

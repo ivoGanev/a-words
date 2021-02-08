@@ -5,20 +5,21 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.MultiAutoCompleteTextView
+import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.FileHandler
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.SpaceTokenizer
-import com.ivo.ganev.awords.TextChangeBroadcast
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.isWithId
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.RadioGroupType
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.RadioGroupType.*
+import com.ivo.ganev.awords.extensions.selectWord
+import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.DatamuseType
+import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.DatamuseType.*
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import timber.log.Timber.d as debug
 
@@ -43,14 +44,18 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             editorEditText.apply {
                 setAdapter(arrayAdapter)
                 setTokenizer(SpaceTokenizer())
+                threshold = 0
                 addTextChangedListener(this@EditorFragment)
                 setOnClickListener(this@EditorFragment)
             }
 
             include.apply {
-                button1.tag = Synonyms
-                button2.tag = Antonyms
-                button3.tag = Rhymes
+                editorPopupDatamuseAnt.tag = Antonyms
+                editorPopupDatamuseSyn.tag = Synonyms
+                editorPopupDatamuseRhy.tag = Rhymes
+                editorPopupDatamuseHom.tag = Homophones
+                editorPopupDatamusePopAdj.tag = PopularAdjectives
+                editorPopupDatamusePopNoun.tag = PopularNoun
             }
 
             contentTextview.onWordClickedListener = onWordClickedListener()
@@ -70,19 +75,24 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     Toast.LENGTH_SHORT
                 ).show()
             else {
+                it.forEach { t -> debug(t) }
                 arrayAdapter =
                     ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, it)
                 binding.editorEditText.setAdapter(arrayAdapter)
+
+                //if (selection == Selection.CLICK) {
                 arrayAdapter.notifyDataSetChanged()
+                binding.editorEditText.showDropDown()
+                //}
             }
         }
     }
 
     private fun onWordClickedListener() = object : TextViewWordMutator.OnWordClickedListener {
         override fun onWordClick(word: String) {
-            val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
-            val type = requireActivity().findViewById<RadioButton>(checkedId).tag
-            viewModel.query(word, type as RadioGroupType)
+//            val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
+//            val type = requireActivity().findViewById<RadioButton>(checkedId).tag
+//            viewModel.query(word, type as DatamuseType)
         }
     }
 
@@ -102,13 +112,20 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
-                val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
-                val type = requireActivity().findViewById<RadioButton>(checkedId).tag
-                viewModel.query(word, type as RadioGroupType)
-
+                viewModel.query(word, getDatamuseCheckboxFunc())
                 println("caught: $word")
             }
         }
+    }
+
+    private fun getDatamuseCheckboxFunc(): List<DatamuseType> {
+        val cb = binding.include.editorDatamuseGrid.children.filterIsInstance<CheckBox>()
+        val list = mutableListOf<DatamuseType>()
+        cb.forEach {
+            if (it.isChecked)
+                list.add(it.tag as DatamuseType)
+        }
+        return list
     }
 
     override fun afterTextChanged(s: Editable?) {
@@ -132,9 +149,17 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
     }
 
     private fun replWord() {
-        val start = binding.editorEditText.selectionStart
-        val end = binding.editorEditText.selectionEnd
-        debug("start: $start, end: $end")
+        with(binding.editorEditText)
+        {
+            val text = text.toString()
+            if (selectionStart < text.length) {
+                val selectedWord = text.selectWord(selectionStart)
+                val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
+                val type = requireActivity().findViewById<RadioButton>(checkedId).tag
+                viewModel.query(selectedWord, getDatamuseCheckboxFunc())
+                debug(selectedWord)
+            }
+        }
     }
 }
 

@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <MultiAutoCompleteTextView
+            <com.ivo.ganev.awords.view.ApiAutoCompleteView
                 android:id="@+id/editor_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
