@@ -23,6 +23,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <MultiAutoCompleteTextView
+                android:id="@+id/editor_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
             <com.ivo.ganev.awords.view.TextViewWordMutator
                 android:id="@+id/content_textview"
                 android:layout_width="match_parent"
@@ -31,11 +36,6 @@
                 android:padding="12dp"
                 android:textSize="18sp" />
 
-            <MultiAutoCompleteTextView
-                android:id="@+id/editor_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-             />
 
         </com.ivo.ganev.awords.view.ViewSwitcherEditorText>
 

@@ -44,6 +44,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 setAdapter(arrayAdapter)
                 setTokenizer(SpaceTokenizer())
                 addTextChangedListener(this@EditorFragment)
+                setOnClickListener(this@EditorFragment)
             }
 
             include.apply {
@@ -115,6 +116,9 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
 
     override fun onClick(clickedView: View?) {
         when {
+            clickedView isWithId R.id.editor_edit_text -> {
+                replWord()
+            }
             clickedView isWithId R.id.editor_switch -> {
                 binding.editorViewSwitcher.showNext()
             }
@@ -125,6 +129,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 binding.contentTextview.undo()
             }
         }
+    }
+
+    private fun replWord() {
+        val start = binding.editorEditText.selectionStart
+        val end = binding.editorEditText.selectionEnd
+        debug("start: $start, end: $end")
     }
 }
 
