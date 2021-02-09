@@ -47,12 +47,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             }
 
             include.apply {
-                editorPopupDatamuseAnt.tag = Antonym
-                editorPopupDatamuseSyn.tag = Synonym
-                editorPopupDatamuseRhy.tag = Rhyme
-                editorPopupDatamuseHom.tag = Homophones
-                editorPopupDatamusePopAdj.tag = PopularAdjectives
-                editorPopupDatamusePopNoun.tag = PopularNouns
+                editorPopupDatamuseAnt.tag = Antonym()
+                editorPopupDatamuseSyn.tag = Synonym()
+                editorPopupDatamuseRhy.tag = Rhyme()
+                editorPopupDatamuseHom.tag = Homophones()
+                editorPopupDatamusePopAdj.tag = PopularAdjectives()
+                editorPopupDatamusePopNoun.tag = PopularNouns()
 
                 editorPopupRandomAdj.tag = EditorViewModel.RandomType.Adjective
                 editorPopupRandomNoun.tag = EditorViewModel.RandomType.Noun

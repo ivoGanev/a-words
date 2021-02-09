@@ -69,12 +69,12 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) : WordSupplier {
 
         override fun get(): List<HardConstraint> = type.toHardConstraint(word)
 
-        object Synonym : CreationConfig(Type.SYNONYMS)
-        object Antonym : CreationConfig(Type.ANTONYMS)
-        object Rhyme : CreationConfig(Type.RHYMES)
-        object Homophones : CreationConfig(Type.HOMOPHONES)
-        object PopularNouns : CreationConfig(Type.POPULAR_ADJECTIVES)
-        object PopularAdjectives : CreationConfig(Type.POPULAR_NOUNS)
+        class Synonym : CreationConfig(Type.SYNONYMS)
+        class Antonym : CreationConfig(Type.ANTONYMS)
+        class Rhyme : CreationConfig(Type.RHYMES)
+        class Homophones : CreationConfig(Type.HOMOPHONES)
+        class PopularNouns : CreationConfig(Type.POPULAR_ADJECTIVES)
+        class PopularAdjectives : CreationConfig(Type.POPULAR_NOUNS)
     }
 
     override fun getWords(
