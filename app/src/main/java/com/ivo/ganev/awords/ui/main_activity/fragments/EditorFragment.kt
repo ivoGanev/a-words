@@ -11,16 +11,11 @@ import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.ivo.ganev.awords.AssetJsonLoader
-import com.ivo.ganev.awords.FileHandler
-import com.ivo.ganev.awords.R
-import com.ivo.ganev.awords.SpaceTokenizer
+import com.ivo.ganev.awords.*
+import com.ivo.ganev.awords.DatamuseWordSupplier.CreationConfig.*
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.DatamuseType
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.DatamuseType.*
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.RandomType.Adjective
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import timber.log.Timber.d as debug
 
@@ -52,12 +47,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             }
 
             include.apply {
-                editorPopupDatamuseAnt.tag = Antonyms
-                editorPopupDatamuseSyn.tag = Synonyms
-                editorPopupDatamuseRhy.tag = Rhymes
+                editorPopupDatamuseAnt.tag = Antonym
+                editorPopupDatamuseSyn.tag = Synonym
+                editorPopupDatamuseRhy.tag = Rhyme
                 editorPopupDatamuseHom.tag = Homophones
                 editorPopupDatamusePopAdj.tag = PopularAdjectives
-                editorPopupDatamusePopNoun.tag = PopularNoun
+                editorPopupDatamusePopNoun.tag = PopularNouns
 
                 editorPopupRandomAdj.tag = EditorViewModel.RandomType.Adjective
                 editorPopupRandomNoun.tag = EditorViewModel.RandomType.Noun
@@ -125,12 +120,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
         }
     }
 
-    private fun getDatamuseCheckboxFunc(): List<DatamuseType> {
+    private fun getDatamuseCheckboxFunc(): List<DatamuseWordSupplier.CreationConfig> {
         val cb = binding.include.editorDatamuseGrid.children.filterIsInstance<CheckBox>()
-        val list = mutableListOf<DatamuseType>()
+        val list = mutableListOf<DatamuseWordSupplier.CreationConfig>()
         cb.forEach {
             if (it.isChecked)
-                list.add(it.tag as DatamuseType)
+                list.add(it.tag as DatamuseWordSupplier.CreationConfig)
         }
         return list
     }
