@@ -114,13 +114,13 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
-                viewModel.query(word, getDatamuseCheckboxFunc())
+                viewModel.query(word, getDatamuseCheckboxConfig())
                 println("caught: $word")
             }
         }
     }
 
-    private fun getDatamuseCheckboxFunc(): List<DatamuseWordSupplier.CreationConfig> {
+    private fun getDatamuseCheckboxConfig(): List<DatamuseWordSupplier.CreationConfig> {
         val cb = binding.include.editorDatamuseGrid.children.filterIsInstance<CheckBox>()
         val list = mutableListOf<DatamuseWordSupplier.CreationConfig>()
         cb.forEach {
@@ -166,11 +166,11 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             val text = text.toString()
             if (selectionStart < text.length) {
                 val selectedWord = text.selectWord(selectionStart)
-                val datamuseCheckBoxesTypes =  getDatamuseCheckboxFunc()
+                val datamuseCheckBoxesTypes =  getDatamuseCheckboxConfig()
                 val randomWordTypes = getRandomWordCheckboxesType()
 
                 if(datamuseCheckBoxesTypes.isNotEmpty()) {
-                    viewModel.query(selectedWord, getDatamuseCheckboxFunc())
+                    viewModel.query(selectedWord, getDatamuseCheckboxConfig())
                     debug(selectedWord)
                 }
                 if(randomWordTypes.isNotEmpty()) {

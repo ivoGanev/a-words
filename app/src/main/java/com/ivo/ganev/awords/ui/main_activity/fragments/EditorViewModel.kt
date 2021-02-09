@@ -52,10 +52,10 @@ class EditorViewModel : ViewModel() {
         _wordResult.set(words)
     }
 
-    fun query(word: String, supplierDetails: List<DatamuseWordSupplier.CreationConfig>) {
-        supplierDetails.forEach { it.word = word }
+    fun query(word: String, config: List<DatamuseWordSupplier.CreationConfig>) {
+        config.forEach { it.word = word }
 
-        datamuseWordSupplier.getWords(supplierDetails[0]) { result ->
+        datamuseWordSupplier.getWords(config) { result ->
             when (result) {
                 is Result.Failure -> _failure.value = result.failure as RemoteFailure
                 is Result.Success -> _wordResult.value = result.result

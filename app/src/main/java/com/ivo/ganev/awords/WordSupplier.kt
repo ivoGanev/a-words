@@ -4,6 +4,7 @@ package com.ivo.ganev.awords
 
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
+import com.ivo.ganev.awords.WordSupplier.CreationConfig
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.WordsEndpointBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
@@ -23,7 +24,7 @@ interface WordSupplier {
     }
 
     fun getWords(
-        creationConfig: CreationConfig,
+        creationConfig: List<CreationConfig>,
         result: (Result<List<String>, Any>) -> Unit
     )
 }
@@ -77,24 +78,30 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) : WordSupplier {
     }
 
     override fun getWords(
-        creationConfig: WordSupplier.CreationConfig,
+        creationConfig: List<WordSupplier.CreationConfig>,
         result: (Result<List<String>, Any>) -> Unit
     ) {
-        creationConfig as CreationConfig
+        val configuredQueries = creationConfig.filterIsInstance<CreationConfig>()
+            .map {
+                wordsBuilder {
+                    hardConstraints = it.get()
+                    maxResults = 5
+                }
+            }
 
-        val wordsQuery = wordsBuilder {
-            hardConstraints = creationConfig.get()
-            maxResults = 10
-        }
+        val merge = mutableListOf<String>()
 
         coroutineScope.launch {
-            val query = queryAsync(wordsQuery).await()
-
-            query.applyEither({
-                result(Failure(it))
-            }, {
-                result(Success(it.toWordList()))
-            })
+            val queries = configuredQueries.map { queryAsync(it).await() }
+            for (i in queries.indices) {
+                queries[i].applyEither({
+                    result(Failure(it))
+                }, {
+                    merge.addAll(it.toWordList())
+                })
+                if(i==queries.size-1)
+                    result(Success(merge))
+            }
         }
     }
 
