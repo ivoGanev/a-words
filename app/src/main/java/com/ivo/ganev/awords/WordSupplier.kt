@@ -34,61 +34,46 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) : WordSupplier {
     enum class Type {
         SYNONYMS {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.SYNONYMS, word))
+                relatedWord(Code.SYNONYMS, word)
         },
         ANTONYMS {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.ANTONYMS, word))
+                relatedWord(Code.ANTONYMS, word)
         },
         RHYMES {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.RHYMES, word))
+                relatedWord(Code.RHYMES, word)
         },
         HOMOPHONES {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.HOMOPHONES, word))
+                relatedWord(Code.HOMOPHONES, word)
         },
         POPULAR_ADJECTIVES {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.POPULAR_ADJECTIVES, word))
+                relatedWord(Code.POPULAR_ADJECTIVES, word)
         },
         POPULAR_NOUNS {
             override fun toHardConstraint(word: String) =
-                hardConstraintsOf(RelatedWords(Code.POPULAR_NOUNS, word))
+                relatedWord(Code.POPULAR_NOUNS, word)
         };
 
         abstract fun toHardConstraint(word: String): List<HardConstraint>
+
+        fun relatedWord(code: Code, word: String) =
+            hardConstraintsOf(RelatedWords(code, word))
     }
 
-    sealed class CreationConfig : WordSupplier.CreationConfig {
+    sealed class CreationConfig(val type: Type) : WordSupplier.CreationConfig {
         lateinit var word: String
-        protected abstract var type: Type
 
         override fun get(): List<HardConstraint> = type.toHardConstraint(word)
 
-        object Synonym : CreationConfig() {
-            override var type = Type.SYNONYMS
-        }
-
-        object Antonym : CreationConfig() {
-            override var type = Type.ANTONYMS
-        }
-
-        object Rhyme : CreationConfig() {
-            override var type = Type.RHYMES
-        }
-
-        object Homophones : CreationConfig() {
-            override var type = Type.HOMOPHONES
-        }
-
-        object PopularNouns : CreationConfig() {
-            override var type = Type.POPULAR_ADJECTIVES
-        }
-
-        object PopularAdjectives : CreationConfig() {
-            override var type = Type.POPULAR_NOUNS
-        }
+        object Synonym : CreationConfig(Type.SYNONYMS)
+        object Antonym : CreationConfig(Type.ANTONYMS)
+        object Rhyme : CreationConfig(Type.RHYMES)
+        object Homophones : CreationConfig(Type.HOMOPHONES)
+        object PopularNouns : CreationConfig(Type.POPULAR_ADJECTIVES)
+        object PopularAdjectives : CreationConfig(Type.POPULAR_NOUNS)
     }
 
     override fun getWords(
