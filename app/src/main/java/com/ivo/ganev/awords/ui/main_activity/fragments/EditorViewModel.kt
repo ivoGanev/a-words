@@ -1,9 +1,11 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ivo.ganev.awords.AssetJsonLoader
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.words.HardConstraint
@@ -68,6 +70,28 @@ class EditorViewModel : ViewModel() {
         abstract fun toConstraint(word: String): List<HardConstraint>
     }
 
+    fun queryRandom(context: Context, randomWordTypes: List<RandomType>) {
+        val assetJsonMapper = AssetJsonLoader(context)
+        val words = mutableListOf<String>()
+
+        for (t in randomWordTypes) {
+            when (t) {
+                RandomType.Adjective -> assetJsonMapper.adjectives().let {
+                    for (i in 0..10) {
+                        // TODO: This may include the same word twice
+                        val rnd = (0..it.length()).random()
+                        words.add(it.getString(rnd))
+                    }
+                }
+                RandomType.Noun -> TODO()
+                RandomType.Adverb -> TODO()
+                RandomType.Verb -> TODO()
+            }
+        }
+
+        _wordResult.set(words)
+    }
+
     /**
      * Will query Datamuse and update [word] or [failure] accordingly.
      * */
@@ -110,7 +134,7 @@ class EditorViewModel : ViewModel() {
             _wordResult.set(allResults)
         }
 
-            //val words = datamuseClient.query(query.build())
+        //val words = datamuseClient.query(query.build())
 //            val wordResponseToList: (Set<WordResponse>) -> List<String> = { wordResponse ->
 //                wordResponse
 //                    .flatMap { it.elements }
@@ -120,10 +144,10 @@ class EditorViewModel : ViewModel() {
 //            words.applyEither(
 //                { _failure.postValue(it) },
 //                { _wordResult.set(wordResponseToList(it)) })
-        }
     }
+}
 
-    private fun MutableLiveData<List<String>>.set(list: List<String>) {
-        value = list
-    }
+private fun MutableLiveData<List<String>>.set(list: List<String>) {
+    value = list
+}
 
