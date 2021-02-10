@@ -25,17 +25,20 @@ class EditorViewModel : ViewModel() {
 
     fun queryRandom(context: Context, queryType: List<RandomWordSupplier.Type>) {
         val payload = RandomWordSupplierPayload(queryType)
-        randomWordSupplier.process(context,payload) { result ->
-            when (result) {
-                is Result.Failure -> _failure.value = result.failure as RemoteFailure
-                is Result.Success -> _wordResult.value = result.result
-            }
-        }
+        processWordSupplier(context, randomWordSupplier, payload)
     }
 
     fun query(context: Context, word: String, queryType: List<DatamuseWordSupplier.Type>) {
         val payload = DatamuseWordSupplierPayload(word, queryType)
-        datamuseWordSupplier.process(context, payload) { result ->
+        processWordSupplier(context, datamuseWordSupplier, payload)
+    }
+
+    private fun <T : Payload> processWordSupplier(
+        context: Context,
+        supplier: PayloadsWordSupplier<T>,
+        payload: T
+    ) {
+        supplier.process(context, payload) { result ->
             when (result) {
                 is Result.Failure -> _failure.value = result.failure as RemoteFailure
                 is Result.Success -> _wordResult.value = result.result
