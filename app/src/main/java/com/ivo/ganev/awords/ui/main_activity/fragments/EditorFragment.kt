@@ -12,8 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.*
-import com.ivo.ganev.awords.DatamuseWordSupplier.CreationConfig.*
+import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
+import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.view.TextViewWordMutator
@@ -47,12 +48,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             }
 
             include.apply {
-                editorPopupDatamuseAnt.tag = Antonym()
-                editorPopupDatamuseSyn.tag = Synonym()
-                editorPopupDatamuseRhy.tag = Rhyme()
-                editorPopupDatamuseHom.tag = Homophones()
-                editorPopupDatamusePopAdj.tag = PopularAdjectives()
-                editorPopupDatamusePopNoun.tag = PopularNouns()
+                editorPopupDatamuseAnt.tag = ANTONYMS
+                editorPopupDatamuseSyn.tag = SYNONYMS
+                editorPopupDatamuseRhy.tag = RHYMES
+                editorPopupDatamuseHom.tag = HOMOPHONES
+                editorPopupDatamusePopAdj.tag = POPULAR_ADJECTIVES
+                editorPopupDatamusePopNoun.tag = POPULAR_NOUNS
 
                 editorPopupRandomAdj.tag = EditorViewModel.RandomType.Adjective
                 editorPopupRandomNoun.tag = EditorViewModel.RandomType.Noun
@@ -114,21 +115,15 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
-                viewModel.query(word, getDatamuseCheckboxConfig())
+                viewModel.query(word, filterDatamuseCheckboxes())
                 println("caught: $word")
             }
         }
     }
 
-    private fun getDatamuseCheckboxConfig(): List<DatamuseWordSupplier.CreationConfig> {
-        val cb = binding.include.editorDatamuseGrid.children.filterIsInstance<CheckBox>()
-        val list = mutableListOf<DatamuseWordSupplier.CreationConfig>()
-        cb.forEach {
-            if (it.isChecked)
-                list.add(it.tag as DatamuseWordSupplier.CreationConfig)
-        }
-        return list
-    }
+    private fun filterDatamuseCheckboxes(): List<DatamuseWordSupplier.Type> =
+        binding.include.editorDatamuseGrid.children.filterTickedCheckboxWithTag()
+
 
     private fun getRandomWordCheckboxesType(): List<EditorViewModel.RandomType> {
         val cb = binding.include.editorRandomWordGrid.children.filterIsInstance<CheckBox>()
@@ -166,14 +161,14 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             val text = text.toString()
             if (selectionStart < text.length) {
                 val selectedWord = text.selectWord(selectionStart)
-                val datamuseCheckBoxesTypes =  getDatamuseCheckboxConfig()
+                val datamuseCheckBoxesTypes = filterDatamuseCheckboxes()
                 val randomWordTypes = getRandomWordCheckboxesType()
 
-                if(datamuseCheckBoxesTypes.isNotEmpty()) {
-                    viewModel.query(selectedWord, getDatamuseCheckboxConfig())
+                if (datamuseCheckBoxesTypes.isNotEmpty()) {
+                    viewModel.query(selectedWord, filterDatamuseCheckboxes())
                     debug(selectedWord)
                 }
-                if(randomWordTypes.isNotEmpty()) {
+                if (randomWordTypes.isNotEmpty()) {
                     viewModel.queryRandom(requireContext(), randomWordTypes)
                 }
             }

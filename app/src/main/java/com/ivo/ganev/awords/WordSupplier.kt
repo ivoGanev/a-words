@@ -2,9 +2,11 @@
 
 package com.ivo.ganev.awords
 
+import android.view.View
+import android.widget.CheckBox
+import androidx.core.view.children
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
-import com.ivo.ganev.awords.WordSupplier.CreationConfig
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.WordsEndpointBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
@@ -18,18 +20,20 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 
-interface WordSupplier {
-    interface CreationConfig {
-        fun get(): Any
-    }
-
-    fun getWords(
-        creationConfig: List<CreationConfig>,
-        result: (Result<List<String>, Any>) -> Unit
-    )
+interface Payload {
+    fun get(): Any
 }
 
-class DatamuseWordSupplier(val coroutineScope: CoroutineScope) : WordSupplier {
+interface PayloadsWordSupplier<T : Payload> {
+    fun process(payload: T, result: (Result<List<String>, Any>) -> Unit)
+}
+
+interface WordSupplier {
+    fun process(result: (Result<List<String>, Any>) -> Unit)
+}
+
+class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
+    PayloadsWordSupplier<DatamuseWordSupplier.DatamusePayload> {
     private val datamuseClient = DatamuseKotlinClient()
 
     enum class Type {
@@ -64,42 +68,35 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) : WordSupplier {
             hardConstraintsOf(RelatedWords(code, word))
     }
 
-    sealed class CreationConfig(val type: Type) : WordSupplier.CreationConfig {
-        lateinit var word: String
-
-        override fun get(): List<HardConstraint> = type.toHardConstraint(word)
-
-        class Synonym : CreationConfig(Type.SYNONYMS)
-        class Antonym : CreationConfig(Type.ANTONYMS)
-        class Rhyme : CreationConfig(Type.RHYMES)
-        class Homophones : CreationConfig(Type.HOMOPHONES)
-        class PopularNouns : CreationConfig(Type.POPULAR_ADJECTIVES)
-        class PopularAdjectives : CreationConfig(Type.POPULAR_NOUNS)
+    class DatamusePayload(private val text: String, private val types: List<Type>) : Payload {
+        override fun get(): Pair<String, List<Type>> {
+            return Pair(text, types)
+        }
     }
 
-    override fun getWords(
-        creationConfig: List<WordSupplier.CreationConfig>,
+    override fun process(
+        payload: DatamusePayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
-        val configuredQueries = creationConfig.filterIsInstance<CreationConfig>()
-            .map {
-                wordsBuilder {
-                    hardConstraints = it.get()
-                    maxResults = 5
-                }
+        val supportedTypes = payload.get().second
+        val typeConfiguredQueries = supportedTypes.map {
+            wordsBuilder {
+                hardConstraints = it.toHardConstraint(payload.get().first)
+                maxResults = 5
             }
+        }
 
         val merge = mutableListOf<String>()
 
         coroutineScope.launch {
-            val queries = configuredQueries.map { queryAsync(it).await() }
+            val queries = typeConfiguredQueries.map { queryAsync(it).await() }
             for (i in queries.indices) {
                 queries[i].applyEither({
                     result(Failure(it))
                 }, {
                     merge.addAll(it.toWordList())
                 })
-                if(i==queries.size-1)
+                if (i == queries.size - 1)
                     result(Success(merge))
             }
         }
