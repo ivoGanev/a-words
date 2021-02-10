@@ -7,13 +7,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ivo.ganev.awords.AssetJsonLoader
-import com.ivo.ganev.awords.DatamuseWordSupplier
-import com.ivo.ganev.awords.Result
+import com.ivo.ganev.awords.*
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 
 class EditorViewModel : ViewModel() {
     private val datamuseWordSupplier = DatamuseWordSupplier(viewModelScope)
+    private val randomWordSupplier = RandomWordSupplier(viewModelScope)
 
     private val _wordResult = MutableLiveData<List<String>>()
     val wordResult: LiveData<List<String>>
@@ -23,37 +22,20 @@ class EditorViewModel : ViewModel() {
     val failure: LiveData<RemoteFailure>
         get() = _failure
 
-    enum class RandomType {
-        Noun,
-        Adjective,
-        Adverb,
-        Verb
-    }
 
-    fun queryRandom(context: Context, randomWordTypes: List<RandomType>) {
-        val assetJsonMapper = AssetJsonLoader(context)
-        val words = mutableListOf<String>()
-
-        for (t in randomWordTypes) {
-            when (t) {
-                RandomType.Adjective -> assetJsonMapper.adjectives().let {
-                    for (i in 0..10) {
-                        // TODO: This may include the same word twice
-                        val rnd = (0..it.length()).random()
-                        words.add(it.getString(rnd))
-                    }
-                }
-                RandomType.Noun -> TODO()
-                RandomType.Adverb -> TODO()
-                RandomType.Verb -> TODO()
+    fun queryRandom(context: Context, queryType: List<RandomWordSupplier.Type>) {
+        val payload = RandomWordSupplierPayload(queryType)
+        randomWordSupplier.process(context,payload) { result ->
+            when (result) {
+                is Result.Failure -> _failure.value = result.failure as RemoteFailure
+                is Result.Success -> _wordResult.value = result.result
             }
         }
-
-        _wordResult.set(words)
     }
 
-    fun query(word: String, config: List<DatamuseWordSupplier.Type>) {
-        datamuseWordSupplier.process(DatamuseWordSupplier.DatamusePayload(word, config)) { result ->
+    fun query(context: Context, word: String, queryType: List<DatamuseWordSupplier.Type>) {
+        val payload = DatamuseWordSupplierPayload(word, queryType)
+        datamuseWordSupplier.process(context, payload) { result ->
             when (result) {
                 is Result.Failure -> _failure.value = result.failure as RemoteFailure
                 is Result.Success -> _wordResult.value = result.result

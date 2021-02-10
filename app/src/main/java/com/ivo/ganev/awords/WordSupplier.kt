@@ -2,9 +2,8 @@
 
 package com.ivo.ganev.awords
 
-import android.view.View
-import android.widget.CheckBox
-import androidx.core.view.children
+import android.content.Context
+import com.ivo.ganev.awords.RandomWordSupplier.Type.*
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
@@ -24,16 +23,79 @@ interface Payload {
     fun get(): Any
 }
 
+class DatamuseWordSupplierPayload(
+    private val text: String,
+    private val types: List<DatamuseWordSupplier.Type>
+) :
+    Payload {
+    override fun get(): Pair<String, List<DatamuseWordSupplier.Type>> {
+        return Pair(text, types)
+    }
+}
+
+class RandomWordSupplierPayload(private val type: List<RandomWordSupplier.Type>) : Payload {
+    override fun get(): List<RandomWordSupplier.Type> {
+        return type
+    }
+}
+
 interface PayloadsWordSupplier<T : Payload> {
-    fun process(payload: T, result: (Result<List<String>, Any>) -> Unit)
+    fun process(
+        context: Context,
+        payload: T,
+        result: (Result<List<String>, Any>) -> Unit
+    )
 }
 
 interface WordSupplier {
     fun process(result: (Result<List<String>, Any>) -> Unit)
 }
 
+class RandomWordSupplier(val coroutineScope: CoroutineScope) :
+    PayloadsWordSupplier<RandomWordSupplierPayload> {
+    enum class Type {
+        NOUN,
+        ADJECTIVE,
+        ADVERB,
+        VERB
+    }
+
+    private fun getAdjectives(context: Context): List<String> {
+        val assetJsonMapper = AssetJsonLoader(context)
+        val result = mutableListOf<String>()
+
+        assetJsonMapper.adjectives().let {
+            for (i in 0..10) {
+                // TODO: This may include the same word twice
+                val rnd = (0 until it.length()).random()
+                result.add(it.getString(rnd))
+            }
+        }
+        return result
+    }
+
+    override fun process(
+        context: Context,
+        payload: RandomWordSupplierPayload,
+        result: (Result<List<String>, Any>) -> Unit
+    ) {
+        val merge = mutableListOf<String>()
+
+        for (supplierType in payload.get()) {
+            when (supplierType) {
+                ADJECTIVE -> merge.addAll(getAdjectives(context))
+                NOUN -> TODO()
+                ADVERB -> TODO()
+                VERB -> TODO()
+            }
+        }
+        //TODO: figure out the failure
+        result(Success(merge))
+    }
+}
+
 class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<DatamuseWordSupplier.DatamusePayload> {
+    PayloadsWordSupplier<DatamuseWordSupplierPayload> {
     private val datamuseClient = DatamuseKotlinClient()
 
     enum class Type {
@@ -68,14 +130,9 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
             hardConstraintsOf(RelatedWords(code, word))
     }
 
-    class DatamusePayload(private val text: String, private val types: List<Type>) : Payload {
-        override fun get(): Pair<String, List<Type>> {
-            return Pair(text, types)
-        }
-    }
-
     override fun process(
-        payload: DatamusePayload,
+        context: Context,
+        payload: DatamuseWordSupplierPayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val supportedTypes = payload.get().second
@@ -110,3 +167,4 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
     private fun queryAsync(query: WordsEndpointBuilder) =
         coroutineScope.async { datamuseClient.query(query.build()) }
 }
+

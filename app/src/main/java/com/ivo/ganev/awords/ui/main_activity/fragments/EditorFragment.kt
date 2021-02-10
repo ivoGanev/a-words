@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
+import com.ivo.ganev.awords.RandomWordSupplier.Type.*
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
@@ -27,6 +28,9 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
     private lateinit var binding: FragmentEditorBinding
     private lateinit var fileHandler: FileHandler
     private lateinit var arrayAdapter: ArrayAdapter<String>
+
+    private inline fun <reified T> filterCheckboxTags(viewGroup: ViewGroup): List<T> =
+        viewGroup.children.filterTickedCheckboxWithTag()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,10 +59,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 editorPopupDatamusePopAdj.tag = POPULAR_ADJECTIVES
                 editorPopupDatamusePopNoun.tag = POPULAR_NOUNS
 
-                editorPopupRandomAdj.tag = EditorViewModel.RandomType.Adjective
-                editorPopupRandomNoun.tag = EditorViewModel.RandomType.Noun
-                editorPopupRandomAdverb.tag = EditorViewModel.RandomType.Adverb
-                editorPopupRandomVerb.tag = EditorViewModel.RandomType.Verb
+                editorPopupRandomAdj.tag = ADJECTIVE
+                editorPopupRandomNoun.tag = NOUN
+                editorPopupRandomAdverb.tag = ADVERB
+                editorPopupRandomVerb.tag = VERB
             }
 
             contentTextview.onWordClickedListener = onWordClickedListener()
@@ -78,15 +82,14 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     Toast.LENGTH_SHORT
                 ).show()
             else {
+                //TODO: When typed the random words don't show for parts of speech
                 it.forEach { t -> debug(t) }
                 arrayAdapter =
                     ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, it)
                 binding.editorEditText.setAdapter(arrayAdapter)
 
-                //if (selection == Selection.CLICK) {
                 arrayAdapter.notifyDataSetChanged()
                 binding.editorEditText.showDropDown()
-                //}
             }
         }
     }
@@ -115,25 +118,21 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
-                viewModel.query(word, filterDatamuseCheckboxes())
+                viewModel.query(
+                    requireContext(),
+                    word,
+                    filterCheckboxTags(binding.include.editorDatamuseGrid)
+                )
+                viewModel.queryRandom(
+                    requireContext(),
+                    filterCheckboxTags(binding.include.editorRandomWordGrid)
+                )
+
                 println("caught: $word")
             }
         }
     }
 
-    private fun filterDatamuseCheckboxes(): List<DatamuseWordSupplier.Type> =
-        binding.include.editorDatamuseGrid.children.filterTickedCheckboxWithTag()
-
-
-    private fun getRandomWordCheckboxesType(): List<EditorViewModel.RandomType> {
-        val cb = binding.include.editorRandomWordGrid.children.filterIsInstance<CheckBox>()
-        val list = mutableListOf<EditorViewModel.RandomType>()
-        cb.forEach {
-            if (it.isChecked)
-                list.add(it.tag as EditorViewModel.RandomType)
-        }
-        return list
-    }
 
     override fun afterTextChanged(s: Editable?) {
     }
@@ -161,16 +160,16 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             val text = text.toString()
             if (selectionStart < text.length) {
                 val selectedWord = text.selectWord(selectionStart)
-                val datamuseCheckBoxesTypes = filterDatamuseCheckboxes()
-                val randomWordTypes = getRandomWordCheckboxesType()
-
-                if (datamuseCheckBoxesTypes.isNotEmpty()) {
-                    viewModel.query(selectedWord, filterDatamuseCheckboxes())
-                    debug(selectedWord)
-                }
-                if (randomWordTypes.isNotEmpty()) {
-                    viewModel.queryRandom(requireContext(), randomWordTypes)
-                }
+                debug("Clicked selection: $selectedWord")
+                viewModel.query(
+                    requireContext(),
+                    selectedWord,
+                    filterCheckboxTags(binding.include.editorDatamuseGrid)
+                )
+                viewModel.queryRandom(
+                    requireContext(),
+                    filterCheckboxTags(binding.include.editorRandomWordGrid)
+                )
             }
         }
     }
