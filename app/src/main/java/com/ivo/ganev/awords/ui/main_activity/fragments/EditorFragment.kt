@@ -13,7 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
-import com.ivo.ganev.awords.RandomWordSupplier.Type.*
+import com.ivo.ganev.awords.POSWordSupplier.Type.*
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId

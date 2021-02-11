@@ -3,7 +3,7 @@
 package com.ivo.ganev.awords
 
 import android.content.Context
-import com.ivo.ganev.awords.RandomWordSupplier.Type.*
+import com.ivo.ganev.awords.POSWordSupplier.ClassPayload
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
 import com.ivo.ganev.awords.extensions.openJsonAsset
@@ -25,22 +25,6 @@ interface Payload {
     fun get(): Any
 }
 
-class DatamuseWordSupplierPayload(
-    private val text: String,
-    private val types: List<DatamuseWordSupplier.Type>
-) :
-    Payload {
-    override fun get(): Pair<String, List<DatamuseWordSupplier.Type>> {
-        return Pair(text, types)
-    }
-}
-
-class RandomWordSupplierPayload(private val type: List<RandomWordSupplier.Type>) : Payload {
-    override fun get(): List<RandomWordSupplier.Type> {
-        return type
-    }
-}
-
 interface PayloadsWordSupplier<T : Payload> {
     fun process(
         context: Context,
@@ -53,8 +37,13 @@ interface WordSupplier {
     fun process(result: (Result<List<String>, Any>) -> Unit)
 }
 
-class RandomWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<RandomWordSupplierPayload> {
+class POSWordSupplier(val coroutineScope: CoroutineScope) :
+    PayloadsWordSupplier<ClassPayload> {
+
+    class ClassPayload(private val type: List<Type>) : Payload {
+        override fun get(): List<Type> = type
+    }
+
     enum class Type {
         NOUN {
             override val fileName: String
@@ -85,7 +74,7 @@ class RandomWordSupplier(val coroutineScope: CoroutineScope) :
         abstract val jsonArrayName: String
     }
 
-    private fun getWordsByType(context: Context, type: Type): List<String> {
+    private fun getRandomWordsByType(context: Context, type: Type): List<String> {
         val json = context.openJsonAsset(type.fileName)
         val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
         val result = mutableListOf<String>()
@@ -101,14 +90,14 @@ class RandomWordSupplier(val coroutineScope: CoroutineScope) :
 
     override fun process(
         context: Context,
-        payload: RandomWordSupplierPayload,
+        payload: ClassPayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val merge = mutableListOf<String>()
 
         //TODO very inefficient due to constantly opening files. Make it more efficient.
         for (wordType in payload.get())
-            merge.addAll(getWordsByType(context, wordType))
+            merge.addAll(getRandomWordsByType(context, wordType))
 
         //TODO: figure out when the code would fail and emit a Failure()
         result(Success(merge))
@@ -116,7 +105,17 @@ class RandomWordSupplier(val coroutineScope: CoroutineScope) :
 }
 
 class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<DatamuseWordSupplierPayload> {
+    PayloadsWordSupplier<DatamuseWordSupplier.ClassPayload> {
+
+    class ClassPayload(
+        private val text: String,
+        private val types: List<DatamuseWordSupplier.Type>
+    ) :
+        Payload {
+        override fun get(): Pair<String, List<DatamuseWordSupplier.Type>> {
+            return Pair(text, types)
+        }
+    }
     private val datamuseClient = DatamuseKotlinClient()
 
     enum class Type {
@@ -153,7 +152,7 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
 
     override fun process(
         context: Context,
-        payload: DatamuseWordSupplierPayload,
+        payload: ClassPayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val supportedTypes = payload.get().second

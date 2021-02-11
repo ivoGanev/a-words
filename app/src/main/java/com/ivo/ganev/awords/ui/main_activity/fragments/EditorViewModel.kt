@@ -12,7 +12,7 @@ import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 
 class EditorViewModel : ViewModel() {
     private val datamuseWordSupplier = DatamuseWordSupplier(viewModelScope)
-    private val randomWordSupplier = RandomWordSupplier(viewModelScope)
+    private val randomWordSupplier = POSWordSupplier(viewModelScope)
 
     private val _wordResult = MutableLiveData<List<String>>()
     val wordResult: LiveData<List<String>>
@@ -23,13 +23,13 @@ class EditorViewModel : ViewModel() {
         get() = _failure
 
 
-    fun queryRandom(context: Context, queryType: List<RandomWordSupplier.Type>) {
-        val payload = RandomWordSupplierPayload(queryType)
+    fun queryRandom(context: Context, queryType: List<POSWordSupplier.Type>) {
+        val payload = POSWordSupplier.ClassPayload(queryType)
         processWordSupplier(context, randomWordSupplier, payload)
     }
 
     fun query(context: Context, word: String, queryType: List<DatamuseWordSupplier.Type>) {
-        val payload = DatamuseWordSupplierPayload(word, queryType)
+        val payload = DatamuseWordSupplier.ClassPayload(word, queryType)
         processWordSupplier(context, datamuseWordSupplier, payload)
     }
 
