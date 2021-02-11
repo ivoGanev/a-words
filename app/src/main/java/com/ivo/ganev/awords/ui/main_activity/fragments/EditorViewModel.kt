@@ -41,12 +41,8 @@ class EditorViewModel : ViewModel() {
         supplier.process(context, payload) { result ->
             when (result) {
                 is Result.Failure -> _failure.value = result.failure as RemoteFailure
-                is Result.Success -> _wordResult.value = result.result
+                is Result.Success -> result.result.let { _wordResult.value = it }
             }
         }
-    }
-
-    private fun MutableLiveData<List<String>>.set(list: List<String>) {
-        value = list
     }
 }

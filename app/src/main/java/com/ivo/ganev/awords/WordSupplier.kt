@@ -6,6 +6,7 @@ import android.content.Context
 import com.ivo.ganev.awords.RandomWordSupplier.Type.*
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
+import com.ivo.ganev.awords.extensions.openJsonAsset
 import com.ivo.ganev.datamuse_kotlin.client.DatamuseKotlinClient
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.WordsEndpointBuilder
 import com.ivo.ganev.datamuse_kotlin.endpoint.builders.wordsBuilder
@@ -17,6 +18,7 @@ import com.ivo.ganev.datamuse_kotlin.response.WordResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 
 interface Payload {
@@ -54,22 +56,45 @@ interface WordSupplier {
 class RandomWordSupplier(val coroutineScope: CoroutineScope) :
     PayloadsWordSupplier<RandomWordSupplierPayload> {
     enum class Type {
-        NOUN,
-        ADJECTIVE,
-        ADVERB,
-        VERB
+        NOUN {
+            override val fileName: String
+                get() = "nouns.json"
+            override val jsonArrayName: String
+                get() = "nouns"
+        },
+        ADJECTIVE {
+            override val fileName: String
+                get() = "adjs.json"
+            override val jsonArrayName: String
+                get() = "adjs"
+        },
+        ADVERB {
+            override val fileName: String
+                get() = "adverbs.json"
+            override val jsonArrayName: String
+                get() = "adverbs"
+        },
+        VERB {
+            override val fileName: String
+                get() = "verbs.json"
+            override val jsonArrayName: String
+                get() = "verbs"
+        };
+
+        abstract val fileName: String
+        abstract val jsonArrayName: String
     }
 
-    private fun getAdjectives(context: Context): List<String> {
-        val assetJsonMapper = AssetJsonLoader(context)
+    private fun getWordsByType(context: Context, type: Type): List<String> {
+        val json = context.openJsonAsset(type.fileName)
+        val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
         val result = mutableListOf<String>()
+        val randomWordCount = (0..10)
 
-        assetJsonMapper.adjectives().let {
-            for (i in 0..10) {
-                // TODO: This may include the same word twice
-                val rnd = (0 until it.length()).random()
-                result.add(it.getString(rnd))
-            }
+        wordArray.let {
+            // TODO: This may include the same word twice
+            for (i in randomWordCount)
+                result.add(it.getString((0 until it.length()).random()))
         }
         return result
     }
@@ -81,15 +106,11 @@ class RandomWordSupplier(val coroutineScope: CoroutineScope) :
     ) {
         val merge = mutableListOf<String>()
 
-        for (supplierType in payload.get()) {
-            when (supplierType) {
-                ADJECTIVE -> merge.addAll(getAdjectives(context))
-                NOUN -> TODO()
-                ADVERB -> TODO()
-                VERB -> TODO()
-            }
-        }
-        //TODO: figure out the failure
+        //TODO very inefficient due to constantly opening files. Make it more efficient.
+        for (wordType in payload.get())
+            merge.addAll(getWordsByType(context, wordType))
+
+        //TODO: figure out when the code would fail and emit a Failure()
         result(Success(merge))
     }
 }
