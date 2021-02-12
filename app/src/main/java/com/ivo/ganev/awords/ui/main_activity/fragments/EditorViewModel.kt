@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
+import timber.log.Timber
+import timber.log.Timber.d as debug
 
 class EditorViewModel : ViewModel() {
     private val datamuseWordSupplier = DatamuseWordSupplier(viewModelScope)
@@ -28,7 +30,7 @@ class EditorViewModel : ViewModel() {
             val payload = DatamuseWordSupplier.StandardPayload(word, datamuseWordType)
             processWordSupplier(context, datamuseWordSupplier, payload)
         }
-        val POSWordType = datamuseWordType.filterIsInstance<POSWordSupplier.Type>()
+        val POSWordType = wordType.filterIsInstance<POSWordSupplier.Type>()
         if(POSWordType.isNotEmpty()) {
             val payload = POSWordSupplier.StandardPayload(word, POSWordType)
             processWordSupplier(context, randomWordSupplier, payload)
