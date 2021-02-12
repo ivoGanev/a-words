@@ -3,7 +3,7 @@
 package com.ivo.ganev.awords
 
 import android.content.Context
-import com.ivo.ganev.awords.POSWordSupplier.ClassPayload
+import com.ivo.ganev.awords.POSWordSupplier.StandardPayload
 import com.ivo.ganev.awords.Result.Failure
 import com.ivo.ganev.awords.Result.Success
 import com.ivo.ganev.awords.extensions.openJsonAsset
@@ -19,6 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import timber.log.Timber
+import timber.log.Timber.d as debug
 
 
 interface Payload {
@@ -38,10 +40,13 @@ interface WordSupplier {
 }
 
 class POSWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<ClassPayload> {
+    PayloadsWordSupplier<StandardPayload> {
 
-    class ClassPayload(private val type: List<Type>) : Payload {
-        override fun get(): List<Type> = type
+    class StandardPayload(
+        val word: String? = null,
+        val type: List<Type>
+    ) : Payload {
+        override fun get() = this
     }
 
     enum class Type {
@@ -88,34 +93,61 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
         return result
     }
 
+    private fun getWordsByNameAndType(context: Context, word: String, type: Type): List<String> {
+        val json = context.openJsonAsset(type.fileName)
+        val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
+        val result = mutableListOf<String>()
+
+        wordArray.let {
+            // TODO: Find an efficient way to fetch the words
+            for (i in 0 until it.length()) {
+                if (it.getString(i).contains(word))
+                    result.add(it.getString(i))
+            }
+        }
+        debug(result.count().toString())
+        return result
+    }
+
     override fun process(
         context: Context,
-        payload: ClassPayload,
+        payload: StandardPayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val merge = mutableListOf<String>()
 
-        //TODO very inefficient due to constantly opening files. Make it more efficient.
-        for (wordType in payload.get())
-            merge.addAll(getRandomWordsByType(context, wordType))
+        // TODO: Make a picking process for the autocomplete. If user writes 'a'
+        //  a word selector will pick a list with all the words starting with 'a'
+        //  and a word filter should choose which words will remain. For now a
+        //  filter with randomized fashion will suffice.
 
+        //TODO: Very inefficient due to constantly opening files. Make it more efficient.
+        val word = payload.get().word
+        if (word != null) {
+            for (wordType in payload.get().type)
+                merge.addAll(getWordsByNameAndType(context, word, wordType))
+        } else {
+            for (wordType in payload.get().type)
+                merge.addAll(getRandomWordsByType(context, wordType))
+        }
         //TODO: figure out when the code would fail and emit a Failure()
         result(Success(merge))
     }
 }
 
 class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<DatamuseWordSupplier.ClassPayload> {
+    PayloadsWordSupplier<DatamuseWordSupplier.StandardPayload> {
 
-    class ClassPayload(
+    class StandardPayload(
         private val text: String,
-        private val types: List<DatamuseWordSupplier.Type>
+        private val types: List<Type>
     ) :
         Payload {
-        override fun get(): Pair<String, List<DatamuseWordSupplier.Type>> {
+        override fun get(): Pair<String, List<Type>> {
             return Pair(text, types)
         }
     }
+
     private val datamuseClient = DatamuseKotlinClient()
 
     enum class Type {
@@ -152,7 +184,7 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
 
     override fun process(
         context: Context,
-        payload: ClassPayload,
+        payload: StandardPayload,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val supportedTypes = payload.get().second

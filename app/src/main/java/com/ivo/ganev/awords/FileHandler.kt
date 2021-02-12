@@ -1,6 +1,7 @@
 package com.ivo.ganev.awords
 
 import android.content.Context
+import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -31,18 +32,14 @@ class FileHandler(
     private lateinit var outputStream: FileOutputStream
     private lateinit var inputStream: FileInputStream
 
-    private fun loadFile(): Boolean {
+    private fun loadFile(uri: Uri): Boolean {
+        val contentResolver = context.contentResolver
         try {
-            if (args.fileUri != null) {
-                val reader = BufferedReader(
-                    InputStreamReader(
-                        context.contentResolver.openInputStream(args.fileUri)
-                    )
-                )
-                textViews.setText(reader.readText())
-            } else {
-                Timber.e("No file arguments found.")
-            }
+            val inputStream = contentResolver.openInputStream(uri)
+            val reader = BufferedReader(
+                InputStreamReader(inputStream)
+            )
+            textViews.setText(reader.readText())
         } catch (ex: FileNotFoundException) {
             Timber.e(ex)
             return false
@@ -51,7 +48,7 @@ class FileHandler(
     }
 
     override fun save() {
-        if(::outputStream.isInitialized) {
+        if (::outputStream.isInitialized) {
             try {
                 val text = textViews.getText()
                 println("Saving..$text")
@@ -77,9 +74,8 @@ class FileHandler(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
-        if (args.fileUri != null) {
-            loadFile()
-
+        if (args.fileUri != null && args.fileUri.toString() != "") {
+            loadFile(args.fileUri)
             parcelFileDescriptor = context
                 .contentResolver
                 .openFileDescriptor(args.fileUri, "w")!!

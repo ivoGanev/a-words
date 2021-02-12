@@ -123,12 +123,13 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     word,
                     filterCheckboxTags(binding.include.editorDatamuseGrid)
                 )
-                viewModel.queryRandom(
+                viewModel.query(
                     requireContext(),
-                    filterCheckboxTags(binding.include.editorRandomWordGrid)
+                    word,
+                     filterCheckboxTags(binding.include.editorRandomWordGrid)
                 )
 
-                println("caught: $word")
+                debug("caught: $word")
             }
         }
     }
@@ -166,8 +167,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     selectedWord,
                     filterCheckboxTags(binding.include.editorDatamuseGrid)
                 )
-                viewModel.queryRandom(
+
+                viewModel.query(
                     requireContext(),
+                    selectedWord,
                     filterCheckboxTags(binding.include.editorRandomWordGrid)
                 )
             }

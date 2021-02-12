@@ -22,15 +22,17 @@ class EditorViewModel : ViewModel() {
     val failure: LiveData<RemoteFailure>
         get() = _failure
 
-
-    fun queryRandom(context: Context, queryType: List<POSWordSupplier.Type>) {
-        val payload = POSWordSupplier.ClassPayload(queryType)
-        processWordSupplier(context, randomWordSupplier, payload)
-    }
-
-    fun query(context: Context, word: String, queryType: List<DatamuseWordSupplier.Type>) {
-        val payload = DatamuseWordSupplier.ClassPayload(word, queryType)
-        processWordSupplier(context, datamuseWordSupplier, payload)
+    fun query(context: Context, word: String, wordType: List<Any>) {
+        val datamuseWordType = wordType.filterIsInstance<DatamuseWordSupplier.Type>()
+        if(datamuseWordType.isNotEmpty()) {
+            val payload = DatamuseWordSupplier.StandardPayload(word, datamuseWordType)
+            processWordSupplier(context, datamuseWordSupplier, payload)
+        }
+        val POSWordType = datamuseWordType.filterIsInstance<POSWordSupplier.Type>()
+        if(POSWordType.isNotEmpty()) {
+            val payload = POSWordSupplier.StandardPayload(word, POSWordType)
+            processWordSupplier(context, randomWordSupplier, payload)
+        }
     }
 
     private fun <T : Payload> processWordSupplier(
