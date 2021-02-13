@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
-import timber.log.Timber
 import timber.log.Timber.d as debug
 
 class EditorViewModel : ViewModel() {
@@ -20,17 +19,20 @@ class EditorViewModel : ViewModel() {
     val wordResult: LiveData<List<String>>
         get() = _wordResult
 
-    private val _failure = MutableLiveData<RemoteFailure>()
-    val failure: LiveData<RemoteFailure>
-        get() = _failure
+    private val _remoteFailure = MutableLiveData<RemoteFailure>()
+    val remoteFailure: LiveData<RemoteFailure>
+        get() = _remoteFailure
 
     fun query(context: Context, word: String, wordType: List<Any>) {
+        // TODO: partition the list by types but allow only 1 type of selection
+        //  otherwise produce a Failure
         val datamuseWordType = wordType.filterIsInstance<DatamuseWordSupplier.Type>()
         if(datamuseWordType.isNotEmpty()) {
             val payload = DatamuseWordSupplier.StandardPayload(word, datamuseWordType)
             processWordSupplier(context, datamuseWordSupplier, payload)
         }
         val POSWordType = wordType.filterIsInstance<POSWordSupplier.Type>()
+        debug(POSWordType.size.toString())
         if(POSWordType.isNotEmpty()) {
             val payload = POSWordSupplier.StandardPayload(word, POSWordType)
             processWordSupplier(context, randomWordSupplier, payload)
@@ -44,7 +46,7 @@ class EditorViewModel : ViewModel() {
     ) {
         supplier.process(context, payload) { result ->
             when (result) {
-                is Result.Failure -> _failure.value = result.failure as RemoteFailure
+                is Result.Failure -> _remoteFailure.value = result.failure as RemoteFailure
                 is Result.Success -> result.result.let { _wordResult.value = it }
             }
         }

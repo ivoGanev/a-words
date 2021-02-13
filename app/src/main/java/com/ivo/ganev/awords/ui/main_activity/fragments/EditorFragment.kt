@@ -82,6 +82,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     Toast.LENGTH_SHORT
                 ).show()
             else {
+                debug("Should not be here")
                 //TODO: When typed the random words don't show for parts of speech
                 it.forEach { t -> debug(t) }
                 arrayAdapter =
@@ -113,6 +114,8 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         with(binding.editorEditText)
         {
+            // TODO: The array adapter is saved and therefore restoring words even
+            //  if none of the checkboxes are selected.
             if (enoughToFilter()) {
                 val tokenizer = SpaceTokenizer()
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)

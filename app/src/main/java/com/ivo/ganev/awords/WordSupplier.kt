@@ -97,7 +97,7 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
         val json = context.openJsonAsset(type.fileName)
         val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
         val result = mutableListOf<String>()
-
+        // TODO: this
         wordArray.let {
             // TODO: Find an efficient way to fetch the words
             for (i in 0 until it.length()) {
