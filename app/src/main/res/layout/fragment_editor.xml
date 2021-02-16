@@ -28,6 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
+
             <com.ivo.ganev.awords.view.TextViewWordMutator
                 android:id="@+id/content_textview"
                 android:layout_width="match_parent"
@@ -35,8 +36,6 @@
                 android:background="@drawable/outlined_rounded_rectangle"
                 android:padding="12dp"
                 android:textSize="18sp" />
-
-
         </com.ivo.ganev.awords.view.ViewSwitcherEditorText>
 
     </ScrollView>

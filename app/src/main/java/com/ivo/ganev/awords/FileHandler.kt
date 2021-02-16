@@ -68,6 +68,8 @@ class FileHandler(
     }
 
     private fun closeStreams() {
+        // TODO(Fix Bug): when back button is pressed there is a crash with
+        //  "lateinit property outputStream has not been initialized"
         outputStream.close()
         parcelFileDescriptor.close()
     }

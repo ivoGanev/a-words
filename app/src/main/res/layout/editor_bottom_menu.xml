@@ -83,7 +83,7 @@
     </GridLayout>
 
     <GridLayout
-        android:id="@+id/editor_random_word_grid"
+        android:id="@+id/editor_pos_word_grid"
         android:background="@drawable/outlined_rounded_rectangle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

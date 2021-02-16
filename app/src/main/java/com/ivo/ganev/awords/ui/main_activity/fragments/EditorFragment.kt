@@ -129,7 +129,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 viewModel.query(
                     requireContext(),
                     word,
-                    filterCheckboxTags(binding.include.editorRandomWordGrid)
+                    filterCheckboxTags(binding.include.editorPosWordGrid)
                 )
 
                 debug("caught: $word")
@@ -174,7 +174,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 viewModel.query(
                     requireContext(),
                     selectedWord,
-                    filterCheckboxTags(binding.include.editorRandomWordGrid)
+                    filterCheckboxTags(binding.include.editorPosWordGrid)
                 )
             }
         }
