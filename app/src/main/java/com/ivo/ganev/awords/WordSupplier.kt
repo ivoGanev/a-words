@@ -18,8 +18,8 @@ import com.ivo.ganev.datamuse_kotlin.response.WordResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
-import timber.log.Timber
 import timber.log.Timber.d as debug
 
 
@@ -35,8 +35,40 @@ interface PayloadsWordSupplier<T : Payload> {
     )
 }
 
-interface WordSupplier {
-    fun process(result: (Result<List<String>, Any>) -> Unit)
+interface WordPickerJSONStrategy {
+    fun pick(array: JSONArray, extraArgs: Any?): List<String>
+}
+
+class WordPickerJSONStrategyContainsName : WordPickerJSONStrategy {
+    override fun pick(array: JSONArray, extraArgs: Any?): List<String> {
+        val result = mutableListOf<String>()
+
+        if (extraArgs is String) {
+            array.let {
+                // TODO: Find an efficient way to fetch the words
+                for (i in 0 until it.length()) {
+                    if (it.getString(i).contains(extraArgs))
+                        result.add(it.getString(i))
+                }
+            }
+            debug(result.count().toString())
+        }
+        return result
+    }
+}
+
+class WordPickerJSONStrategyRandom : WordPickerJSONStrategy {
+    override fun pick(array: JSONArray, extraArgs: Any?): List<String> {
+        val result = mutableListOf<String>()
+        val randomWordCount = (0..10)
+
+        array.let {
+            // TODO: This may include the same word twice
+            for (i in randomWordCount)
+                result.add(it.getString((0 until it.length()).random()))
+        }
+        return result
+    }
 }
 
 class POSWordSupplier(val coroutineScope: CoroutineScope) :
@@ -44,7 +76,8 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
 
     class StandardPayload(
         val word: String? = null,
-        val type: List<Type>
+        val type: List<Type>,
+        val wordPickerJSONStrategy: WordPickerJSONStrategy
     ) : Payload {
         override fun get() = this
     }
@@ -79,36 +112,6 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
         abstract val jsonArrayName: String
     }
 
-    private fun getRandomWordsByType(context: Context, type: Type): List<String> {
-        val json = context.openJsonAsset(type.fileName)
-        val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
-        val result = mutableListOf<String>()
-        val randomWordCount = (0..10)
-
-        wordArray.let {
-            // TODO: This may include the same word twice
-            for (i in randomWordCount)
-                result.add(it.getString((0 until it.length()).random()))
-        }
-        return result
-    }
-
-    private fun getWordsByNameAndType(context: Context, word: String, type: Type): List<String> {
-        val json = context.openJsonAsset(type.fileName)
-        val wordArray = JSONObject(json).getJSONArray(type.jsonArrayName)
-        val result = mutableListOf<String>()
-        // TODO: this
-        wordArray.let {
-            // TODO: Find an efficient way to fetch the words
-            for (i in 0 until it.length()) {
-                if (it.getString(i).contains(word))
-                    result.add(it.getString(i))
-            }
-        }
-        debug(result.count().toString())
-        return result
-    }
-
     override fun process(
         context: Context,
         payload: StandardPayload,
@@ -120,16 +123,13 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
         //  a word selector will pick a list with all the words starting with 'a'
         //  and a word filter should choose which words will remain. For now a
         //  filter with randomized fashion will suffice.
-
-        //TODO: Very inefficient due to constantly opening files. Make it more efficient.
-        val word = payload.get().word
-        if (word != null) {
-            for (wordType in payload.get().type)
-                merge.addAll(getWordsByNameAndType(context, word, wordType))
-        } else {
-            for (wordType in payload.get().type)
-                merge.addAll(getRandomWordsByType(context, wordType))
+        for (wordType in payload.type) {
+            val json = context.openJsonAsset(wordType.fileName)
+            val wordArray = JSONObject(json).getJSONArray(wordType.jsonArrayName)
+            val words = payload.wordPickerJSONStrategy.pick(wordArray, payload.word)
+            merge.addAll(words)
         }
+
         //TODO: figure out when the code would fail and emit a Failure()
         result(Success(merge))
     }

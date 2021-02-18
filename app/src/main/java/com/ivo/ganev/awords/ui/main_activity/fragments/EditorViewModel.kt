@@ -23,19 +23,10 @@ class EditorViewModel : ViewModel() {
     val remoteFailure: LiveData<RemoteFailure>
         get() = _remoteFailure
 
-    fun query(context: Context, word: String, wordType: List<Any>) {
-        // TODO: partition the list by types but allow only 1 type of selection
-        //  otherwise produce a Failure
-        val datamuseWordType = wordType.filterIsInstance<DatamuseWordSupplier.Type>()
-        if(datamuseWordType.isNotEmpty()) {
-            val payload = DatamuseWordSupplier.StandardPayload(word, datamuseWordType)
-            processWordSupplier(context, datamuseWordSupplier, payload)
-        }
-        val POSWordType = wordType.filterIsInstance<POSWordSupplier.Type>()
-        debug(POSWordType.size.toString())
-        if(POSWordType.isNotEmpty()) {
-            val payload = POSWordSupplier.StandardPayload(word, POSWordType)
-            processWordSupplier(context, randomWordSupplier, payload)
+    fun query(context: Context, payload: Payload) {
+        when(payload) {
+            is POSWordSupplier.StandardPayload -> processWordSupplier(context, randomWordSupplier, payload)
+            is DatamuseWordSupplier.StandardPayload -> processWordSupplier(context, datamuseWordSupplier, payload)
         }
     }
 

@@ -121,17 +121,27 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                 val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
                 val word = text.toString().substring(tokenStart, selectionEnd)
 
-                viewModel.query(
-                    requireContext(),
-                    word,
-                    filterCheckboxTags(binding.include.editorDatamuseGrid)
-                )
-                viewModel.query(
-                    requireContext(),
-                    word,
-                    filterCheckboxTags(binding.include.editorPosWordGrid)
-                )
+                val datamuseCheckboxTags =
+                    filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
+                if (datamuseCheckboxTags.isNotEmpty()) {
+                    viewModel.query(
+                        requireContext(),
+                        DatamuseWordSupplier.StandardPayload(word, datamuseCheckboxTags)
+                    )
+                }
 
+                val posCheckboxTags =
+                    filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
+                if (posCheckboxTags.isNotEmpty()) {
+                    viewModel.query(
+                        requireContext(),
+                        POSWordSupplier.StandardPayload(
+                            word,
+                            posCheckboxTags,
+                            WordPickerJSONStrategyContainsName()
+                        )
+                    )
+                }
                 debug("caught: $word")
             }
         }
@@ -165,17 +175,28 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             if (selectionStart < text.length) {
                 val selectedWord = text.selectWord(selectionStart)
                 debug("Clicked selection: $selectedWord")
-                viewModel.query(
-                    requireContext(),
-                    selectedWord,
-                    filterCheckboxTags(binding.include.editorDatamuseGrid)
-                )
+                val datamuseCheckboxTags =
+                    filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
+                if (datamuseCheckboxTags.isNotEmpty()) {
+                    viewModel.query(
+                        requireContext(),
+                        DatamuseWordSupplier.StandardPayload(selectedWord, datamuseCheckboxTags)
+                    )
+                }
 
-                viewModel.query(
-                    requireContext(),
-                    selectedWord,
-                    filterCheckboxTags(binding.include.editorPosWordGrid)
-                )
+                val posCheckboxTags =
+                    filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
+                if (posCheckboxTags.isNotEmpty()) {
+                    viewModel.query(
+                        requireContext(),
+                        POSWordSupplier.StandardPayload(
+                            selectedWord,
+                            posCheckboxTags,
+                            WordPickerJSONStrategyRandom()
+                        )
+                    )
+                }
+
             }
         }
     }
