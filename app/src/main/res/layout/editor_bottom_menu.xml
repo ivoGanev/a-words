@@ -100,7 +100,7 @@
             android:button="@android:color/transparent"
             android:text="NOUN" />
         <CheckBox
-            android:checked="true"
+            android:checked="false"
             android:id="@+id/editor_popup_random_adj"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

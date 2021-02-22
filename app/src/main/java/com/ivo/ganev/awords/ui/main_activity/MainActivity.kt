@@ -35,14 +35,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         //TODO: Remove when finished debugging
-        navController.navigate(
-            MainFragmentDirections.actionMainFragmentToEditorFragment(
-                EditorFragmentArguments(
-                    0,
-                    Uri.parse("")
-                )
-            )
-        )
+//        navController.navigate(
+//            MainFragmentDirections.actionMainFragmentToEditorFragment(
+//                EditorFragmentArguments(
+//                    0,
+//                    Uri.parse("")
+//                )
+//            )
+//        )
 
         setSupportActionBar(binding.mainToolbar)
         setupActionBarWithNavController(navController)

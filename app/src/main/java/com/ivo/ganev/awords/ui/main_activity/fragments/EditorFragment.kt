@@ -35,7 +35,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
-
+        
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
             lifecycle.addObserver(fileHandler)
@@ -129,7 +129,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                         DatamuseWordSupplier.StandardPayload(word, datamuseCheckboxTags)
                     )
                 }
-
                 val posCheckboxTags =
                     filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
                 if (posCheckboxTags.isNotEmpty()) {
