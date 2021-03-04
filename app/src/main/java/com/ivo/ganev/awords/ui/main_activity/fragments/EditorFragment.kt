@@ -89,7 +89,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
                     ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, it)
                 binding.editorEditText.setAdapter(arrayAdapter)
 
-                arrayAdapter.notifyDataSetChanged()
                 binding.editorEditText.showDropDown()
             }
         }

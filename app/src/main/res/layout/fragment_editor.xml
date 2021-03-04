@@ -23,7 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.ivo.ganev.awords.view.ApiAutoCompleteView
+            <MultiAutoCompleteTextView
+                android:hint="Enter your text here"
+                android:completionThreshold="1"
                 android:id="@+id/editor_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
