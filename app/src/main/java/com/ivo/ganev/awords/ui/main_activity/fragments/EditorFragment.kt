@@ -3,6 +3,7 @@ package com.ivo.ganev.awords.ui.main_activity.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -11,6 +12,7 @@ import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
 import com.ivo.ganev.awords.POSWordSupplier.Type.*
@@ -21,7 +23,11 @@ import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import timber.log.Timber.d as debug
 
-class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener, TextWatcher {
+class EditorFragment : Fragment(R.layout.fragment_editor),
+    View.OnClickListener,
+    TextWatcher,
+    BottomNavigationView.OnNavigationItemSelectedListener {
+
     private val viewModel: EditorViewModel by viewModels()
     private val args: EditorFragmentArgs by navArgs()
 
@@ -35,10 +41,12 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
-        
+
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
             lifecycle.addObserver(fileHandler)
+
+            bottomNavigation.setOnNavigationItemSelectedListener(this@EditorFragment)
 
             arrayAdapter =
                 ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, arrayListOf())
@@ -65,9 +73,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             }
 
             contentTextview.onWordClickedListener = onWordClickedListener()
-            editorSwitch.setOnClickListener(this@EditorFragment)
-            editorRedo.setOnClickListener(this@EditorFragment)
-            editorUndo.setOnClickListener(this@EditorFragment)
         }
 
         debug(args.editorFragmentArgs.toString())
@@ -153,9 +158,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             clickedView isWithId R.id.editor_edit_text -> {
                 replWord()
             }
-            clickedView isWithId R.id.editor_switch -> {
-                binding.editorViewSwitcher.showNext()
-            }
             clickedView isWithId R.id.editor_redo -> {
                 binding.contentTextview.redo()
             }
@@ -196,6 +198,14 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
 
             }
         }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.bottom_nav_first -> binding.editorViewSwitcher.displayedChild = 0
+            R.id.bottom_nav_second -> binding.editorViewSwitcher.displayedChild = 1
+        }
+        return true
     }
 }
 

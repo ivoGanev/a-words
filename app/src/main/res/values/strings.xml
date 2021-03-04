@@ -8,4 +8,6 @@
     <string name="document_provider_root_summary">Document provider root summary.</string>
     <string name="document_provider_title">My Documents</string>
     <string name="button_create_new_file">New File</string>
+    <string name="bottom_nav_menu_first">Randomize</string>
+    <string name="bottom_nav_menu_second">Autocomplete</string>
 </resources>

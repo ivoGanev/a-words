@@ -12,7 +12,7 @@ class ViewSwitcherEditorText : ViewSwitcher {
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
-    val copyText: View.(View) -> Unit =  {
+    val copyText: View.(View) -> Unit = {
         when {
             // copying text like this..yeah I know. Unfortunately setting PrecomputedText
             // could be done only to the TextView but not the EditText as far as it seems.
@@ -34,7 +34,7 @@ class ViewSwitcherEditorText : ViewSwitcher {
         else if (v is EditText) v.setText(text)
     }
 
-    fun getText() : String {
+    fun getText(): String {
         return (currentView as TextView).text.toString()
     }
 }
