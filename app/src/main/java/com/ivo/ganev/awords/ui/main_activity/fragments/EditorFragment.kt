@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
 import com.ivo.ganev.awords.POSWordSupplier.Type.*
@@ -34,6 +35,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
     private lateinit var binding: FragmentEditorBinding
     private lateinit var fileHandler: FileHandler
     private lateinit var arrayAdapter: ArrayAdapter<String>
+    private lateinit var bottomSheetFragment: BottomSheetDialogFragment
 
     private inline fun <reified T> filterCheckboxTags(viewGroup: ViewGroup): List<T> =
         viewGroup.children.filterTickedCheckboxWithTag()
@@ -41,6 +43,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
+        bottomSheetFragment = WordSupplierOptionsSheet.newInstance()
 
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
@@ -57,6 +60,8 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 addTextChangedListener(this@EditorFragment)
                 setOnClickListener(this@EditorFragment)
             }
+
+            editorExpandWordFetchers.setOnClickListener(this@EditorFragment)
 
             include.apply {
                 editorPopupDatamuseAnt.tag = ANTONYMS
@@ -155,6 +160,10 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
     override fun onClick(clickedView: View?) {
         when {
+            clickedView isWithId R.id.editor_expand_word_fetchers -> {
+                bottomSheetFragment.show(parentFragmentManager, "word_supplier_options")
+            }
+
             clickedView isWithId R.id.editor_edit_text -> {
                 replWord()
             }

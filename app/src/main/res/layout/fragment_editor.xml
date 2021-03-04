@@ -1,65 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent">
 
-    android:orientation="vertical">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottom_navigation"
-        tools:context=".ui.main_activity.fragments.EditorFragment">
+        android:layout_height="match_parent">
 
-        <ScrollView
-            android:id="@+id/scrollView2"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:padding="16dp"
-            app:layout_constraintBottom_toTopOf="@+id/include"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            android:layout_height="match_parent"
+            android:layout_above="@id/editor_expand_word_fetchers"
+            tools:context=".ui.main_activity.fragments.EditorFragment">
 
-            <com.ivo.ganev.awords.view.ViewSwitcherEditorText
-                android:id="@+id/editor_view_switcher"
+            <ScrollView
+                android:id="@+id/scrollView2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="0dp"
+                android:padding="16dp"
+                app:layout_constraintBottom_toTopOf="@+id/include"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
 
-                <MultiAutoCompleteTextView
-                    android:id="@+id/editor_edit_text"
+                <com.ivo.ganev.awords.view.ViewSwitcherEditorText
+                    android:id="@+id/editor_view_switcher"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:completionThreshold="1"
-                    android:hint="Enter your text here" />
+                    android:layout_height="wrap_content">
 
-                <com.ivo.ganev.awords.view.TextViewWordMutator
-                    android:id="@+id/content_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/outlined_rounded_rectangle"
-                    android:padding="12dp"
-                    android:textSize="18sp" />
-            </com.ivo.ganev.awords.view.ViewSwitcherEditorText>
+                    <MultiAutoCompleteTextView
+                        android:id="@+id/editor_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:completionThreshold="1"
+                        android:hint="Enter your text here" />
 
-        </ScrollView>
+                    <com.ivo.ganev.awords.view.TextViewWordMutator
+                        android:id="@+id/content_textview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/outlined_rounded_rectangle"
+                        android:padding="12dp"
+                        android:textSize="18sp" />
+                </com.ivo.ganev.awords.view.ViewSwitcherEditorText>
 
-        <include
-            android:id="@+id/include"
-            layout="@layout/include_editor_bottom"
-            tools:layout_editor_absoluteY="500dp" />
+            </ScrollView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <include android:visibility="gone"
+                android:id="@+id/include"
+                layout="@layout/include_editor_bottom"
+                tools:layout_editor_absoluteY="500dp" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_navigation_menu" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/editor_expand_word_fetchers"
+            android:layout_centerHorizontal="true"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_above="@id/bottom_navigation"
+            android:background="@drawable/ic_baseline_expand_less_24" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/bottom_navigation_menu" />
+
+    </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
