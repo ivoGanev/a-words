@@ -46,7 +46,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor), View.OnClickListener,
             editorEditText.apply {
                 setAdapter(arrayAdapter)
                 setTokenizer(SpaceTokenizer())
-                threshold = 0
                 addTextChangedListener(this@EditorFragment)
                 setOnClickListener(this@EditorFragment)
             }
