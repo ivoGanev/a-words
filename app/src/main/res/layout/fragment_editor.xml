@@ -12,7 +12,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/editor_expand_word_fetchers"
+            android:layout_above="@id/include_undo_redo"
             tools:context=".ui.main_activity.fragments.EditorFragment">
 
             <ScrollView
@@ -50,19 +50,27 @@
 
             </ScrollView>
 
-            <include android:visibility="gone"
+            <include
                 android:id="@+id/include"
                 layout="@layout/include_editor_bottom"
+                android:visibility="gone"
                 tools:layout_editor_absoluteY="500dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <include
+            layout="@layout/include_undo_redo"
+            android:id="@+id/include_undo_redo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/editor_expand_word_fetchers" />
+
         <Button
             android:id="@+id/editor_expand_word_fetchers"
-            android:layout_centerHorizontal="true"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_above="@id/bottom_navigation"
+            android:layout_centerHorizontal="true"
             android:background="@drawable/ic_baseline_expand_less_24" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
