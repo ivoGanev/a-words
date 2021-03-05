@@ -7,26 +7,7 @@
     android:layout_height="150dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    tools:showIn="@layout/fragment_editor">
-
-    <Button
-        android:id="@+id/editor_undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Undo"
-
-        app:layout_constraintBottom_toTopOf="@+id/editor_pos_word_grid"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/editor_redo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Redo"
-
-        app:layout_constraintBottom_toBottomOf="@+id/editor_undo"
-        app:layout_constraintEnd_toStartOf="@+id/editor_undo" />
+    app:layout_constraintStart_toStartOf="parent">
 
     <GridLayout
         android:id="@+id/editor_datamuse_grid"

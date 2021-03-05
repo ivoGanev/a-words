@@ -10,4 +10,6 @@
     <string name="button_create_new_file">New File</string>
     <string name="bottom_nav_menu_first">Randomize</string>
     <string name="bottom_nav_menu_second">Autocomplete</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
 </resources>

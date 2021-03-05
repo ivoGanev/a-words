@@ -1,5 +1,8 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
+import com.ivo.ganev.awords.ui.main_activity.fragments.EditorFragmentArgs
+import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel
+
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
