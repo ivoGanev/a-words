@@ -4,20 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/menu"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="wrap_content"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent">
 
-    <GridLayout
+    <TextView
+        android:id="@+id/in_tv_title_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Word Settings"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/in_tv_title_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:text="Constraints"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+
+    <LinearLayout
         android:id="@+id/editor_datamuse_grid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:background="@drawable/outlined_rounded_rectangle"
-        android:columnCount="3"
-        android:rowCount="2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@+id/in_tv_title_left"
+        app:layout_constraintTop_toBottomOf="@+id/in_tv_title_left">
 
         <CheckBox
             android:id="@+id/editor_popup_datamuse_syn"
@@ -25,7 +45,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="SYN"
+            android:padding="8dp"
+            android:text="Synonyms"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -35,7 +56,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="ANT"
+            android:padding="8dp"
+            android:text="Antonyms"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -45,7 +67,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="RHY"
+            android:padding="8dp"
+            android:text="Rhymes"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -55,7 +78,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="HOM"
+            android:padding="8dp"
+            android:text="Homophones"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,7 +89,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="POPADJ"
+            android:padding="8dp"
+            android:text="Popular Adjectives"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -75,52 +100,76 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="POPN"
+            android:padding="8dp"
+            android:text="Popular Nouns"
             app:layout_constraintBottom_toTopOf="@+id/editor_radio_group"
             app:layout_constraintStart_toStartOf="parent" />
-    </GridLayout>
+    </LinearLayout>
 
-    <GridLayout
-        android:id="@+id/editor_pos_word_grid"
-        android:background="@drawable/outlined_rounded_rectangle"
+    <TextView
+        android:id="@+id/in_tv_title_right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="2"
-        android:rowCount="2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_marginEnd="40dp"
+        android:text="Parts of Speech"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+
+    <LinearLayout
+        android:id="@+id/editor_pos_word_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/outlined_rounded_rectangle"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="@+id/in_tv_title_right"
+        app:layout_constraintTop_toBottomOf="@+id/in_tv_title_right">
 
         <CheckBox
-            android:checked="true"
             android:id="@+id/editor_popup_random_noun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="NOUN" />
+            android:checked="true"
+            android:padding="8dp"
+            android:text="Noun" />
+
         <CheckBox
-            android:checked="false"
             android:id="@+id/editor_popup_random_adj"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="ADJ" />
+            android:checked="false"
+            android:padding="8dp"
+            android:text="Adjectives" />
+
         <CheckBox
             android:id="@+id/editor_popup_random_verb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="VERB" />
+            android:padding="8dp"
+            android:text="Verbs" />
+
         <CheckBox
             android:id="@+id/editor_popup_random_adverb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:text="ADVERB" />
-    </GridLayout>
+            android:padding="8dp"
+            android:text="Adverbs" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="59dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
