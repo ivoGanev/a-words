@@ -11,7 +11,7 @@ infix fun View?.isWithId(id: Int): Boolean {
 }
 
 /**
- * Filters out the tag <T> of the selected views if it is present.
+ * Filters out only checked boxes, and maps the sequence as tag <T>
  * */
 inline fun <reified T> Sequence<View>.filterTickedCheckboxWithTag(): List<T> =
     this.filterIsInstance<CheckBox>()

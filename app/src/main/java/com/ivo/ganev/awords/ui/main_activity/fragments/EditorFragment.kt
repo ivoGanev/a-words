@@ -1,8 +1,6 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -22,13 +20,14 @@ import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
+import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import timber.log.Timber.d as debug
 
 class EditorFragment : Fragment(R.layout.fragment_editor),
     View.OnClickListener,
-    TextWatcher,
-    BottomNavigationView.OnNavigationItemSelectedListener {
+    BottomNavigationView.OnNavigationItemSelectedListener,
+    AutoCompleteEditText.OnFilteredTextChangeListener {
 
     private val viewModel: EditorViewModel by viewModels()
     private val args: EditorFragmentArgs by navArgs()
@@ -48,21 +47,11 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
-            lifecycle.addObserver(fileHandler)
 
             bottomNavigation.setOnNavigationItemSelectedListener(this@EditorFragment)
-
-            arrayAdapter =
-                ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, arrayListOf())
-
-            editorEditText.apply {
-                setAdapter(arrayAdapter)
-                setTokenizer(SpaceTokenizer())
-                addTextChangedListener(this@EditorFragment)
-                setOnClickListener(this@EditorFragment)
-            }
-
             editorExpandWordFetchers.setOnClickListener(this@EditorFragment)
+            contentTextview.onWordClickedListener = onWordClickedListener()
+            editorEditText.onFilteredTextChangeListener = this@EditorFragment
 
             include.apply {
                 editorPopupDatamuseAnt.tag = ANTONYMS
@@ -78,11 +67,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 editorPopupRandomVerb.tag = VERB
             }
 
-            contentTextview.onWordClickedListener = onWordClickedListener()
         }
-
-        debug(args.editorFragmentArgs.toString())
-
 
         viewModel.wordResult.observe(viewLifecycleOwner) {
             if (it.isEmpty())
@@ -92,16 +77,14 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                     Toast.LENGTH_SHORT
                 ).show()
             else {
-                debug("Should not be here")
-                //TODO: When typed the random words don't show for parts of speech
-                it.forEach { t -> debug(t) }
                 arrayAdapter =
                     ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, it)
                 binding.editorEditText.setAdapter(arrayAdapter)
-
                 binding.editorEditText.showDropDown()
             }
         }
+
+        lifecycle.addObserver(fileHandler)
     }
 
     private fun onWordClickedListener() = object : TextViewWordMutator.OnWordClickedListener {
@@ -112,52 +95,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-    }
-
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        with(binding.editorEditText)
-        {
-            // TODO: The array adapter is saved and therefore restoring words even
-            //  if none of the checkboxes are selected.
-            if (enoughToFilter()) {
-                val tokenizer = SpaceTokenizer()
-                val tokenStart = tokenizer.findTokenStart(text, selectionEnd)
-                val word = text.toString().substring(tokenStart, selectionEnd)
-
-                val datamuseCheckboxTags =
-                    filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
-                if (datamuseCheckboxTags.isNotEmpty()) {
-                    viewModel.query(
-                        requireContext(),
-                        DatamuseWordSupplier.StandardPayload(word, datamuseCheckboxTags)
-                    )
-                }
-                val posCheckboxTags =
-                    filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
-                if (posCheckboxTags.isNotEmpty()) {
-                    viewModel.query(
-                        requireContext(),
-                        POSWordSupplier.StandardPayload(
-                            word,
-                            posCheckboxTags,
-                            WordPickerJSONStrategyContainsName()
-                        )
-                    )
-                }
-                debug("caught: $word")
-            }
-        }
-    }
-
-
-    override fun afterTextChanged(s: Editable?) {
-    }
 
     override fun onClick(clickedView: View?) {
         when {
@@ -205,7 +142,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                         )
                     )
                 }
-
             }
         }
     }
@@ -238,6 +174,30 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 startAnimation(animation)
             }
         }
+    }
+
+    override fun onFilteredTextChanged(word: String) {
+        @Suppress("SpellCheckingInspection") val datamuseCheckboxTags =
+            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
+        if (datamuseCheckboxTags.isNotEmpty()) {
+            viewModel.query(
+                requireContext(),
+                DatamuseWordSupplier.StandardPayload(word, datamuseCheckboxTags)
+            )
+        }
+        val posCheckboxTags =
+            filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
+        if (posCheckboxTags.isNotEmpty()) {
+            viewModel.query(
+                requireContext(),
+                POSWordSupplier.StandardPayload(
+                    word,
+                    posCheckboxTags,
+                    WordPickerJSONStrategyContainsName()
+                )
+            )
+        }
+        debug("caught: $word")
     }
 }
 

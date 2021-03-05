@@ -18,9 +18,9 @@ interface FileSaver {
  * Handle loading and saving the files
  * */
 class FileHandler(
-    val context: Context,
-    val args: EditorFragmentArguments,
-    val textViews: ViewSwitcherEditorText
+    private val context: Context,
+    private val args: EditorFragmentArguments,
+    private val textViews: ViewSwitcherEditorText
 ) : LifecycleObserver, FileSaver {
 
     enum class Action {
@@ -30,7 +30,6 @@ class FileHandler(
 
     private lateinit var parcelFileDescriptor: ParcelFileDescriptor
     private lateinit var outputStream: FileOutputStream
-    private lateinit var inputStream: FileInputStream
 
     private fun loadFile(uri: Uri): Boolean {
         val contentResolver = context.contentResolver
