@@ -13,9 +13,13 @@ infix fun View?.isWithId(id: Int): Boolean {
 /**
  * Filters out only checked boxes, and maps the sequence as tag <T>
  * */
-inline fun <reified T> Sequence<View>.filterTickedCheckboxWithTag(): List<T> =
-    this.filterIsInstance<CheckBox>()
+inline fun <reified T> Sequence<View>.filterTickedCheckboxWithTag(): List<T> {
+    for (e in this)
+        println("" + e + (e as CheckBox).isChecked)
+
+    return this.filterIsInstance<CheckBox>()
         .filter { it.isChecked }
         .map { it.tag as T }
         .toList()
+}
 

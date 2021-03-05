@@ -20,6 +20,7 @@ import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
+import com.ivo.ganev.awords.platform.concatLists
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import timber.log.Timber.d as debug
@@ -103,7 +104,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             }
 
             clickedView isWithId R.id.editor_edit_text -> {
-                replWord()
+                onClickAutoCompleteEditText()
             }
             clickedView isWithId R.id.editor_redo -> {
                 binding.contentTextview.redo()
@@ -114,34 +115,18 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         }
     }
 
-    private fun replWord() {
+    private fun onClickAutoCompleteEditText() {
         with(binding.editorEditText)
         {
             val text = text.toString()
             if (selectionStart < text.length) {
-                val selectedWord = text.selectWord(selectionStart)
-                debug("Clicked selection: $selectedWord")
-                val datamuseCheckboxTags =
-                    filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
-                if (datamuseCheckboxTags.isNotEmpty()) {
-                    viewModel.query(
-                        requireContext(),
-                        DatamuseWordSupplier.StandardPayload(selectedWord, datamuseCheckboxTags)
-                    )
-                }
-
-                val posCheckboxTags =
-                    filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
-                if (posCheckboxTags.isNotEmpty()) {
-                    viewModel.query(
-                        requireContext(),
-                        POSWordSupplier.StandardPayload(
-                            selectedWord,
-                            posCheckboxTags,
-                            WordPickerJSONStrategyRandom()
-                        )
-                    )
-                }
+                val word = text.selectWord(selectionStart)
+                val arguments = mapOf(
+                    "tags" to collectTags(),
+                    "word" to word,
+                    "word_picker_strategy" to WordPickerJSONStrategyRandom()
+                )
+                viewModel.query(requireContext(), arguments)
             }
         }
     }
@@ -170,34 +155,26 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         binding.apply {
             editorViewSwitcher.displayedChild = 0
             includeUndoRedo.includeUndoRedoLayout.apply {
-                visibility = View.VISIBLE
+                visibility = View.GONE
                 startAnimation(animation)
             }
         }
     }
 
     override fun onFilteredTextChanged(word: String) {
-        @Suppress("SpellCheckingInspection") val datamuseCheckboxTags =
-            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid)
-        if (datamuseCheckboxTags.isNotEmpty()) {
-            viewModel.query(
-                requireContext(),
-                DatamuseWordSupplier.StandardPayload(word, datamuseCheckboxTags)
-            )
-        }
-        val posCheckboxTags =
+        val arguments = mapOf(
+            "tags" to collectTags(),
+            "word" to word,
+            "word_picker_strategy" to WordPickerJSONStrategyContainsName()
+        )
+        viewModel.query(requireContext(), arguments)
+    }
+
+    private fun collectTags(): List<*> {
+        return concatLists(
+            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid),
             filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
-        if (posCheckboxTags.isNotEmpty()) {
-            viewModel.query(
-                requireContext(),
-                POSWordSupplier.StandardPayload(
-                    word,
-                    posCheckboxTags,
-                    WordPickerJSONStrategyContainsName()
-                )
-            )
-        }
-        debug("caught: $word")
+        )
     }
 }
 

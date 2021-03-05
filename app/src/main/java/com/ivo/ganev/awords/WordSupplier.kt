@@ -27,10 +27,10 @@ interface Payload {
     fun get(): Any
 }
 
-interface PayloadsWordSupplier<T : Payload> {
+interface WordSupplier {
     fun process(
         context: Context,
-        payload: T,
+        payload: Any,
         result: (Result<List<String>, Any>) -> Unit
     )
 }
@@ -72,7 +72,7 @@ class WordPickerJSONStrategyRandom : WordPickerJSONStrategy {
 }
 
 class POSWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<StandardPayload> {
+    WordSupplier {
 
     class StandardPayload(
         val word: String? = null,
@@ -114,19 +114,20 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
 
     override fun process(
         context: Context,
-        payload: StandardPayload,
+        payload: Any,
         result: (Result<List<String>, Any>) -> Unit
     ) {
         val merge = mutableListOf<String>()
+        val standardPayload = payload as StandardPayload
 
         // TODO: Make a picking process for the autocomplete. If user writes 'a'
         //  a word selector will pick a list with all the words starting with 'a'
         //  and a word filter should choose which words will remain. For now a
         //  filter with randomized fashion will suffice.
-        for (wordType in payload.type) {
+        for (wordType in standardPayload.type) {
             val json = context.openJsonAsset(wordType.fileName)
             val wordArray = JSONObject(json).getJSONArray(wordType.jsonArrayName)
-            val words = payload.wordPickerJSONStrategy.pick(wordArray, payload.word)
+            val words = standardPayload.wordPickerJSONStrategy.pick(wordArray, standardPayload.word)
             merge.addAll(words)
         }
 
@@ -136,7 +137,7 @@ class POSWordSupplier(val coroutineScope: CoroutineScope) :
 }
 
 class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
-    PayloadsWordSupplier<DatamuseWordSupplier.StandardPayload> {
+    WordSupplier {
 
     class StandardPayload(
         private val text: String,
@@ -182,15 +183,24 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
             hardConstraintsOf(RelatedWords(code, word))
     }
 
+    private fun Set<WordResponse>.toWordList() = this.flatMap { it.elements }
+        .filterIsInstance<WordResponse.Element.Word>()
+        .map { it.word }
+
+
+    private fun queryAsync(query: WordsEndpointBuilder) =
+        coroutineScope.async { datamuseClient.query(query.build()) }
+
     override fun process(
         context: Context,
-        payload: StandardPayload,
+        payload: Any,
         result: (Result<List<String>, Any>) -> Unit
     ) {
-        val supportedTypes = payload.get().second
+        val standardPayload = payload as StandardPayload
+        val supportedTypes = standardPayload.get().second
         val typeConfiguredQueries = supportedTypes.map {
             wordsBuilder {
-                hardConstraints = it.toHardConstraint(payload.get().first)
+                hardConstraints = it.toHardConstraint(standardPayload.get().first)
                 maxResults = 5
             }
         }
@@ -210,13 +220,5 @@ class DatamuseWordSupplier(val coroutineScope: CoroutineScope) :
             }
         }
     }
-
-    private fun Set<WordResponse>.toWordList() = this.flatMap { it.elements }
-        .filterIsInstance<WordResponse.Element.Word>()
-        .map { it.word }
-
-
-    private fun queryAsync(query: WordsEndpointBuilder) =
-        coroutineScope.async { datamuseClient.query(query.build()) }
 }
 
