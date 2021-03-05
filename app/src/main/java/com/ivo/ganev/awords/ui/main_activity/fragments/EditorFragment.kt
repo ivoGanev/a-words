@@ -1,14 +1,12 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorFragmentArgs
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel
-
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.children
@@ -214,10 +212,32 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.bottom_nav_first -> binding.editorViewSwitcher.displayedChild = 0
-            R.id.bottom_nav_second -> binding.editorViewSwitcher.displayedChild = 1
+            R.id.bottom_nav_first -> onFirstBottomNavButtonClicked()
+            R.id.bottom_nav_second -> onSecondBottomNavButtonClicked()
         }
         return true
+    }
+
+    private fun onSecondBottomNavButtonClicked() {
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up)
+        binding.apply {
+            editorViewSwitcher.displayedChild = 1
+            includeUndoRedo.includeUndoRedoLayout.apply {
+                visibility = View.VISIBLE
+                startAnimation(animation)
+            }
+        }
+    }
+
+    private fun onFirstBottomNavButtonClicked() {
+        val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_down)
+        binding.apply {
+            editorViewSwitcher.displayedChild = 0
+            includeUndoRedo.includeUndoRedoLayout.apply {
+                visibility = View.VISIBLE
+                startAnimation(animation)
+            }
+        }
     }
 }
 
