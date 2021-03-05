@@ -13,16 +13,14 @@ fun String.selectWord(cursor: Int): String {
     if (this[c] == ' ')
         return ""
 
-    var start = 0
-    var end = 0
     while (c > 0 && this[c - 1] != ' ') {
         c--
     }
-    start = c
+    val start: Int = c
 
     while (c < this.length && this[c] != ' ') {
         c++
     }
-    end = c
+    val end: Int = c
     return this.substring(start, end)
 }
