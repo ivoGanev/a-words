@@ -74,6 +74,7 @@
             android:background="@drawable/ic_baseline_expand_less_24" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:background="@color/gray_light"
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
