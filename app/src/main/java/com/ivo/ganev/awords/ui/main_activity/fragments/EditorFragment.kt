@@ -23,6 +23,7 @@ import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.platform.concatLists
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
+import kotlinx.coroutines.flow.map
 
 class EditorFragment : Fragment(R.layout.fragment_editor),
     View.OnClickListener,
@@ -158,6 +159,16 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             includeUndoRedo.includeUndoRedoLayout.apply {
                 visibility = View.GONE
                 startAnimation(animation)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireContext().settingsDataStore.data.map { item ->
+            with(item)
+            {
+                println(item.chkboxAdj)
             }
         }
     }

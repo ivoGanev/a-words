@@ -131,7 +131,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
             android:button="@android:color/transparent"
-            android:checked="true"
             android:padding="8dp"
             android:text="Noun" />
 
