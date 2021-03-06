@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "com.ivo.ganev.awords";
+option java_multiple_files = true;
+
+message Settings {
+  bool chkbox_synonyms = 1;
+  bool chkbox_antonyms = 2;
+  bool chkbox_rhymes = 3;
+  bool chkbox_homophones = 4;
+  bool chkbox_pop_adj = 5;
+  bool chkbox_pop_nouns = 6;
+  bool chkbox_noun = 7;
+  bool chkbox_adj = 8;
+  bool chkbox_verb = 9;
+  bool chkbox_adverb = 10;
+}

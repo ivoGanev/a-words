@@ -23,19 +23,21 @@ import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.platform.concatLists
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
-import timber.log.Timber.d as debug
 
 class EditorFragment : Fragment(R.layout.fragment_editor),
     View.OnClickListener,
     BottomNavigationView.OnNavigationItemSelectedListener,
     AutoCompleteEditText.OnFilteredTextChangeListener {
 
-    private val viewModel: EditorViewModel by viewModels()
-    private val args: EditorFragmentArgs by navArgs()
+    private val WORD_SETTINGS_FRAGMENT_TAG = "word_supplier_options"
 
+    private val viewModel: EditorViewModel by viewModels()
+
+    private val args: EditorFragmentArgs by navArgs()
     private lateinit var binding: FragmentEditorBinding
     private lateinit var fileHandler: FileHandler
     private lateinit var arrayAdapter: ArrayAdapter<String>
+
     private lateinit var bottomSheetFragment: BottomSheetDialogFragment
 
     private inline fun <reified T> filterCheckboxTags(viewGroup: ViewGroup): List<T> =
@@ -45,7 +47,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentEditorBinding.bind(view)
         bottomSheetFragment = WordSupplierOptionsSheet.newInstance()
-
+        bottomSheetFragment
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
 
@@ -54,20 +56,18 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             contentTextview.onWordClickedListener = onWordClickedListener()
             editorEditText.onFilteredTextChangeListener = this@EditorFragment
 
-            include.apply {
-                editorPopupDatamuseAnt.tag = ANTONYMS
-                editorPopupDatamuseSyn.tag = SYNONYMS
-                editorPopupDatamuseRhy.tag = RHYMES
-                editorPopupDatamuseHom.tag = HOMOPHONES
-                editorPopupDatamusePopAdj.tag = POPULAR_ADJECTIVES
-                editorPopupDatamusePopNoun.tag = POPULAR_NOUNS
-
-                editorPopupRandomAdj.tag = ADJECTIVE
-                editorPopupRandomNoun.tag = NOUN
-                editorPopupRandomAdverb.tag = ADVERB
-                editorPopupRandomVerb.tag = VERB
-            }
-
+//            include.apply {
+//                editorPopupDatamuseAnt.tag = ANTONYMS
+//                editorPopupDatamuseSyn.tag = SYNONYMS
+//                editorPopupDatamuseRhy.tag = RHYMES
+//                editorPopupDatamuseHom.tag = HOMOPHONES
+//                editorPopupDatamusePopAdj.tag = POPULAR_ADJECTIVES
+//                editorPopupDatamusePopNoun.tag = POPULAR_NOUNS
+//                editorPopupRandomAdj.tag = ADJECTIVE
+//                editorPopupRandomNoun.tag = NOUN
+//                editorPopupRandomAdverb.tag = ADVERB
+//                editorPopupRandomVerb.tag = VERB
+//            }
         }
 
         viewModel.wordResult.observe(viewLifecycleOwner) {
@@ -88,6 +88,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         lifecycle.addObserver(fileHandler)
     }
 
+
     private fun onWordClickedListener() = object : TextViewWordMutator.OnWordClickedListener {
         override fun onWordClick(word: String) {
 //            val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
@@ -96,17 +97,17 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         }
     }
 
-
     override fun onClick(clickedView: View?) {
         when {
             clickedView isWithId R.id.editor_expand_word_fetchers -> {
-                bottomSheetFragment.show(parentFragmentManager, "word_supplier_options")
+                bottomSheetFragment.show(parentFragmentManager, WORD_SETTINGS_FRAGMENT_TAG)
             }
 
             clickedView isWithId R.id.editor_edit_text -> {
                 onClickAutoCompleteEditText()
             }
             clickedView isWithId R.id.editor_redo -> {
+                parentFragmentManager.findFragmentByTag(WORD_SETTINGS_FRAGMENT_TAG)
                 binding.contentTextview.redo()
             }
             clickedView isWithId R.id.editor_undo -> {
@@ -172,8 +173,8 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
     private fun collectTags(): List<*> {
         return concatLists(
-            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid),
-            filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
+//            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid),
+//            filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
         )
     }
 }

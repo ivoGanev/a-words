@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'androidx.navigation.safeargs.kotlin'
     id 'kotlin-kapt'
+    id "com.google.protobuf" version "0.8.12"
 }
 
 
@@ -40,7 +41,30 @@ android {
     }
 }
 
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.10.0"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
+
 dependencies {
+    implementation "androidx.datastore:datastore:1.0.0-alpha07"
+    implementation  "com.google.protobuf:protobuf-javalite:3.10.0"
+
     implementation files('libs/discrete-partitioned-state-1.0.jar')
     
     // Logging
