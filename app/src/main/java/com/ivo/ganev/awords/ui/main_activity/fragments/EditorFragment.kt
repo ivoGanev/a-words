@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -21,6 +22,7 @@ import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.platform.concatLists
+import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.EditorViewModelFactory
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import kotlinx.coroutines.flow.map
@@ -32,7 +34,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
     private val WORD_SETTINGS_FRAGMENT_TAG = "word_supplier_options"
 
-    private val viewModel: EditorViewModel by viewModels()
+    private lateinit var viewModel: EditorViewModel
 
     private val args: EditorFragmentArgs by navArgs()
     private lateinit var binding: FragmentEditorBinding
@@ -46,9 +48,15 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProvider(
+            this,
+            EditorViewModelFactory(UserSettingsRepository.getInstance(requireContext()))
+        ).get(EditorViewModel::class.java)
+
         binding = FragmentEditorBinding.bind(view)
         bottomSheetFragment = WordSupplierOptionsSheet.newInstance()
-        bottomSheetFragment
+
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
 

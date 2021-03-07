@@ -3,15 +3,15 @@
 package com.ivo.ganev.awords.ui.main_activity.fragments
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.ivo.ganev.awords.*
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
 import timber.log.Timber.d as debug
 
-class EditorViewModel : ViewModel() {
+class EditorViewModel(
+    private val userSettingsRepository: UserSettingsRepository
+) : ViewModel() {
+
     private val datamuseWordSupplier = DatamuseWordSupplier(viewModelScope)
     private val randomWordSupplier = POSWordSupplier(viewModelScope)
 
@@ -30,6 +30,7 @@ class EditorViewModel : ViewModel() {
      * "word" - String, "word_picker_strategy" - WordPickerJSONStrategy
      * */
     fun query(context: Context, arguments: Map<String, Any>) {
+        
         val (first, second) = arguments["tags"] as List<*>
         // TODO: In this current version datamuse and POS queries are separated and
         //       cannot be mixed. Fix that in the next version
@@ -40,10 +41,10 @@ class EditorViewModel : ViewModel() {
         val word = arguments["word"] as String
         val strategy = arguments["word_picker_strategy"] as WordPickerJSONStrategy
 
-        debug(posTags.size.toString())
-        debug(datamuseTags.size.toString())
-        debug(word)
-        debug(strategy::class.java.toString())
+//        debug(posTags.size.toString())
+//        debug(datamuseTags.size.toString())
+//        debug(word)
+//        debug(strategy::class.java.toString())
 
         if (datamuseTags.isNotEmpty()) {
             supplier = datamuseWordSupplier
@@ -58,6 +59,19 @@ class EditorViewModel : ViewModel() {
                 is Result.Failure -> _remoteFailure.value = result.failure as RemoteFailure
                 is Result.Success -> result.result.let { _wordResult.value = it }
             }
+        }
+    }
+
+    class EditorViewModelFactory(
+        private val userSettingsRepository: UserSettingsRepository
+    ) : ViewModelProvider.Factory {
+
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(EditorViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return EditorViewModel(userSettingsRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }
