@@ -1,8 +1,9 @@
-package com.ivo.ganev.awords
+package com.ivo.ganev.awords.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import com.ivo.ganev.awords.Settings
 import kotlinx.coroutines.flow.catch
 import java.io.IOException
 

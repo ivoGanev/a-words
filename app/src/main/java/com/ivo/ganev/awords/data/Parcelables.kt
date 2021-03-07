@@ -3,14 +3,14 @@ package com.ivo.ganev.awords
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import com.ivo.ganev.awords.io.FileHandler
 
 
 class EditorFragmentArguments(val fileHandlerAction: Int, val fileUri: Uri?) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readParcelable(Uri::class.java.classLoader)
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(fileHandlerAction)

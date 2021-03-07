@@ -1,19 +1,21 @@
-@file:Suppress("SpellCheckingInspection")
-
-package com.ivo.ganev.awords.ui.main_activity.fragments
+package com.ivo.ganev.awords.ui.main.fragments
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.ivo.ganev.awords.*
+import com.ivo.ganev.awords.data.UserSettingsRepository
+import com.ivo.ganev.awords.functional.Result
+import com.ivo.ganev.awords.supplier.DatamuseWordSupplier
+import com.ivo.ganev.awords.supplier.PartOfSpeechWordSupplier
+import com.ivo.ganev.awords.supplier.Payload
+import com.ivo.ganev.awords.supplier.WordSupplier
 import com.ivo.ganev.datamuse_kotlin.response.RemoteFailure
-import timber.log.Timber.d as debug
 
 class EditorViewModel(
     private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
 
     private val datamuseWordSupplier = DatamuseWordSupplier(viewModelScope)
-    private val randomWordSupplier = POSWordSupplier(viewModelScope)
+    private val randomWordSupplier = PartOfSpeechWordSupplier(viewModelScope)
 
     private val _wordResult = MutableLiveData<List<String>>()
     val wordResult: LiveData<List<String>>
@@ -30,16 +32,16 @@ class EditorViewModel(
      * "word" - String, "word_picker_strategy" - WordPickerJSONStrategy
      * */
     fun query(context: Context, arguments: Map<String, Any>) {
-        
+
         val (first, second) = arguments["tags"] as List<*>
         // TODO: In this current version datamuse and POS queries are separated and
         //       cannot be mixed. Fix that in the next version
         val datamuseTags = (first as List<*>).filterIsInstance<DatamuseWordSupplier.Type>()
-        val posTags = (second as List<*>).filterIsInstance<POSWordSupplier.Type>()
+        val posTags = (second as List<*>).filterIsInstance<PartOfSpeechWordSupplier.Type>()
         val supplier: WordSupplier
         val payload: Payload
         val word = arguments["word"] as String
-        val strategy = arguments["word_picker_strategy"] as WordPickerJSONStrategy
+        val strategy = arguments["word_picker_strategy"] as PartOfSpeechWordSupplier.WordPickStrategy
 
 //        debug(posTags.size.toString())
 //        debug(datamuseTags.size.toString())
@@ -51,7 +53,7 @@ class EditorViewModel(
             payload = DatamuseWordSupplier.StandardPayload(word, datamuseTags)
         } else {
             supplier = randomWordSupplier
-            payload = POSWordSupplier.StandardPayload(word, posTags, strategy)
+            payload = PartOfSpeechWordSupplier.StandardPayload(word, posTags, strategy)
         }
 
         supplier.process(context, payload) { result ->

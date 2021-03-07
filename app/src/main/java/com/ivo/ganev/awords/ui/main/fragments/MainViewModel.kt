@@ -1,12 +1,10 @@
-package com.ivo.ganev.awords.ui.main_activity.fragments
+package com.ivo.ganev.awords.ui.main.fragments
 
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.ivo.ganev.awords.EditorFragmentArguments
-import com.ivo.ganev.awords.FileHandler
-import com.ivo.ganev.awords.FileHandler.Action.CREATE
 import com.ivo.ganev.awords.platform.SingleEvent
 import timber.log.Timber
 

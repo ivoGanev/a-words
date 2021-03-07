@@ -1,4 +1,4 @@
-package com.ivo.ganev.awords.ui.main_activity.fragments
+package com.ivo.ganev.awords.ui.main.fragments
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -9,22 +9,24 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ivo.ganev.awords.*
-import com.ivo.ganev.awords.DatamuseWordSupplier.Type.*
-import com.ivo.ganev.awords.POSWordSupplier.Type.*
+import com.ivo.ganev.awords.data.UserSettingsRepository
+import com.ivo.ganev.awords.data.settingsDataStore
 import com.ivo.ganev.awords.databinding.FragmentEditorBinding
 import com.ivo.ganev.awords.extensions.filterTickedCheckboxWithTag
 import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.platform.concatLists
-import com.ivo.ganev.awords.ui.main_activity.fragments.EditorViewModel.EditorViewModelFactory
+import com.ivo.ganev.awords.ui.WordSupplierOptionsSheetFragment
+import com.ivo.ganev.awords.ui.main.fragments.EditorViewModel.EditorViewModelFactory
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
+import com.ivo.ganev.awords.io.FileHandler
+import com.ivo.ganev.awords.supplier.PartOfSpeechWordSupplier
 import kotlinx.coroutines.flow.map
 
 class EditorFragment : Fragment(R.layout.fragment_editor),
@@ -55,7 +57,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         ).get(EditorViewModel::class.java)
 
         binding = FragmentEditorBinding.bind(view)
-        bottomSheetFragment = WordSupplierOptionsSheet.newInstance()
+        bottomSheetFragment = WordSupplierOptionsSheetFragment.newInstance()
 
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
@@ -134,7 +136,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 val arguments = mapOf(
                     "tags" to collectTags(),
                     "word" to word,
-                    "word_picker_strategy" to WordPickerJSONStrategyRandom()
+                    "word_picker_strategy" to PartOfSpeechWordSupplier.WordPickStrategyRandom()
                 )
                 viewModel.query(requireContext(), arguments)
             }
@@ -185,7 +187,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         val arguments = mapOf(
             "tags" to collectTags(),
             "word" to word,
-            "word_picker_strategy" to WordPickerJSONStrategyContainsName()
+            "word_picker_strategy" to PartOfSpeechWordSupplier.WordPickStrategyContainsName()
         )
         viewModel.query(requireContext(), arguments)
     }

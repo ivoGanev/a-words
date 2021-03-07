@@ -1,10 +1,8 @@
-package com.ivo.ganev.awords.ui.main_activity
+package com.ivo.ganev.awords.ui.main
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -14,7 +12,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.ivo.ganev.awords.EditorFragmentArguments
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.ActivityMainBinding
-import com.ivo.ganev.awords.ui.main_activity.fragments.MainFragmentDirections
+import com.ivo.ganev.awords.ui.main.fragments.MainFragmentDirections
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {

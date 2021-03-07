@@ -1,4 +1,4 @@
-package com.ivo.ganev.awords
+package com.ivo.ganev.awords.io
 
 import android.content.Context
 import android.net.Uri
@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.ivo.ganev.awords.EditorFragmentArguments
 import com.ivo.ganev.awords.view.ViewSwitcherEditorText
 import timber.log.Timber
 import java.io.*

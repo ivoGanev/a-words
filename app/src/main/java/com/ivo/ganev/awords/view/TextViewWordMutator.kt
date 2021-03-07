@@ -8,8 +8,7 @@ import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
-import com.ivo.ganev.awords.SpannableStringCaretaker
-import com.ivo.ganev.awords.SpannableStringCaretaker.*
+import com.ivo.ganev.awords.text.SpannableStringCaretaker
 
 /**
  * A clickable text view which assists in transformation(mutation) of separate words within

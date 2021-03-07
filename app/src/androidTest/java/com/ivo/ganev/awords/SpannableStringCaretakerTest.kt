@@ -1,8 +1,8 @@
 package com.ivo.ganev.awords
 
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.View
+import com.ivo.ganev.awords.text.SpannableStringCaretaker
 import org.junit.Test
 import kotlin.test.assertEquals
 

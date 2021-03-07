@@ -1,7 +1,6 @@
-package com.ivo.ganev.awords.ui.main_activity
+package com.ivo.ganev.awords.ui.main
 
 import android.database.MatrixCursor
-import org.junit.Assert.*
 import org.junit.Test
 
 class MainActivityTest {

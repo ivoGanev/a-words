@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/include_undo_redo"
-            tools:context=".ui.main_activity.fragments.EditorFragment">
+            tools:context=".ui.main.fragments.EditorFragment">
 
             <ScrollView
                 android:id="@+id/scrollView2"

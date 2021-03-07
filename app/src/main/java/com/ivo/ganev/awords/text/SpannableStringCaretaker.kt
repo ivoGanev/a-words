@@ -1,6 +1,5 @@
-package com.ivo.ganev.awords
+package com.ivo.ganev.awords.text
 
-import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ClickableSpan
 import com.ivo.ganev.awords.extensions.setClickableSpanToAllWords
@@ -121,6 +120,4 @@ class SpannableStringCaretaker(text: CharSequence, val clickableSpan: () -> Clic
             return "{ word: $word, start: $start }"
         }
     }
-
-
 }

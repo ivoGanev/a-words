@@ -1,4 +1,4 @@
-package com.ivo.ganev.awords
+package com.ivo.ganev.awords.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,17 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.ivo.ganev.awords.R
+import com.ivo.ganev.awords.data.UserSettingsRepository
+import com.ivo.ganev.awords.data.settingsDataStore
 import com.ivo.ganev.awords.databinding.IncludeEditorBottomBinding
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 
 @Suppress("unused")
-class WordSupplierOptionsSheet : BottomSheetDialogFragment() {
+class WordSupplierOptionsSheetFragment : BottomSheetDialogFragment() {
     private var _binding: IncludeEditorBottomBinding? = null
     private val binding get() = _binding!!
 
@@ -67,8 +68,8 @@ class WordSupplierOptionsSheet : BottomSheetDialogFragment() {
     }
 
     companion object {
-        fun newInstance(): WordSupplierOptionsSheet {
-            return WordSupplierOptionsSheet()
+        fun newInstance(): WordSupplierOptionsSheetFragment {
+            return WordSupplierOptionsSheetFragment()
         }
     }
 

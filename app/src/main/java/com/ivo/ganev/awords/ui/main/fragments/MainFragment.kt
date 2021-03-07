@@ -1,4 +1,4 @@
-package com.ivo.ganev.awords.ui.main_activity.fragments
+package com.ivo.ganev.awords.ui.main.fragments
 
 import android.app.Activity
 import android.app.Activity.RESULT_OK
@@ -8,13 +8,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.ivo.ganev.awords.FileHandler
-import com.ivo.ganev.awords.FileHandler.Action.CREATE
-import com.ivo.ganev.awords.FileHandler.Action.OPEN
+import com.ivo.ganev.awords.io.FileHandler.Action.CREATE
+import com.ivo.ganev.awords.io.FileHandler.Action.OPEN
 import com.ivo.ganev.awords.R
 import com.ivo.ganev.awords.databinding.FragmentMainBinding
 import com.ivo.ganev.awords.provider.StorageAccessFramework
-import com.ivo.ganev.awords.ui.main_activity.MainActivity
+import com.ivo.ganev.awords.ui.main.MainActivity
 
 
 class MainFragment : Fragment(R.layout.fragment_main), View.OnClickListener {

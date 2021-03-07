@@ -1,10 +1,9 @@
-package com.ivo.ganev.awords
+package com.ivo.ganev.awords.data
 
-import android.content.Context
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
+import com.ivo.ganev.awords.Settings
 import java.io.InputStream
 import java.io.OutputStream
 
