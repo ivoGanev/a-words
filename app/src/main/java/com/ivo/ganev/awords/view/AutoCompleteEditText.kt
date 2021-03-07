@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
+import android.text.method.QwertyKeyListener
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
 
@@ -22,6 +23,19 @@ class AutoCompleteEditText : AppCompatMultiAutoCompleteTextView {
 
     fun interface OnFilteredTextChangeListener {
         fun onFilteredTextChanged(word: String)
+    }
+
+    override fun replaceText(text: CharSequence) {
+        clearComposingText()
+
+        val end: Int = tokenizer.findTokenEnd(getText(), selectionEnd)
+        val start: Int = tokenizer.findTokenStart(getText(), end)
+
+        val editable = getText()
+        val original = TextUtils.substring(editable, start, end)
+
+        QwertyKeyListener.markAsReplaced(editable, start, end, original)
+        editable.replace(start, end, tokenizer.terminateToken(text))
     }
 
     override fun onTextChanged(
