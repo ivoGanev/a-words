@@ -22,7 +22,6 @@ import com.ivo.ganev.awords.extensions.isWithId
 import com.ivo.ganev.awords.extensions.selectWord
 import com.ivo.ganev.awords.platform.concatLists
 import com.ivo.ganev.awords.ui.WordSupplierOptionsSheetFragment
-import com.ivo.ganev.awords.ui.main.fragments.EditorViewModel.EditorViewModelFactory
 import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import com.ivo.ganev.awords.io.FileHandler
@@ -66,19 +65,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             editorExpandWordFetchers.setOnClickListener(this@EditorFragment)
             contentTextview.onWordClickedListener = onWordClickedListener()
             editorEditText.onFilteredTextChangeListener = this@EditorFragment
-
-//            include.apply {
-//                editorPopupDatamuseAnt.tag = ANTONYMS
-//                editorPopupDatamuseSyn.tag = SYNONYMS
-//                editorPopupDatamuseRhy.tag = RHYMES
-//                editorPopupDatamuseHom.tag = HOMOPHONES
-//                editorPopupDatamusePopAdj.tag = POPULAR_ADJECTIVES
-//                editorPopupDatamusePopNoun.tag = POPULAR_NOUNS
-//                editorPopupRandomAdj.tag = ADJECTIVE
-//                editorPopupRandomNoun.tag = NOUN
-//                editorPopupRandomAdverb.tag = ADVERB
-//                editorPopupRandomVerb.tag = VERB
-//            }
+            editorEditText.setOnClickListener(this@EditorFragment)
         }
 
         viewModel.wordResult.observe(viewLifecycleOwner) {

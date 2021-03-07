@@ -37,10 +37,6 @@ class AutoCompleteEditText : AppCompatMultiAutoCompleteTextView {
         }
     }
 
-    override fun setOnClickListener(listener: OnClickListener?) {
-        super.setOnClickListener(listener)
-    }
-
     class SpaceTokenizer : Tokenizer {
         override fun findTokenStart(text: CharSequence, cursor: Int): Int {
             var i = cursor
