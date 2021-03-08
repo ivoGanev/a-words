@@ -26,6 +26,8 @@ import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import com.ivo.ganev.awords.io.FileHandler
 import com.ivo.ganev.awords.supplier.PartOfSpeechWordSupplier
+import com.ivo.ganev.awords.ui.main.EditorRandomWordScreen
+import com.ivo.ganev.awords.ui.main.fragments.EditorViewModel.QueryArgKeys.EDITOR_MODE
 import kotlinx.coroutines.flow.map
 
 class EditorFragment : Fragment(R.layout.fragment_editor),
@@ -41,7 +43,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
     private lateinit var binding: FragmentEditorBinding
     private lateinit var fileHandler: FileHandler
     private lateinit var arrayAdapter: ArrayAdapter<String>
-
+    private lateinit var editorRandomWordScreen: EditorRandomWordScreen
     private lateinit var bottomSheetFragment: BottomSheetDialogFragment
 
     private inline fun <reified T> filterCheckboxTags(viewGroup: ViewGroup): List<T> =
@@ -63,13 +65,14 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
             bottomNavigation.setOnNavigationItemSelectedListener(this@EditorFragment)
             editorExpandWordFetchers.setOnClickListener(this@EditorFragment)
-            contentTextview.onWordClickedListener = onWordClickedListener()
             editorEditText.onFilteredTextChangeListener = this@EditorFragment
             editorEditText.setOnClickListener(this@EditorFragment)
         }
 
-        viewModel.wordResult.observe(viewLifecycleOwner) {
-            if (it.isEmpty())
+        viewModel.wordResults.observe(viewLifecycleOwner) { wordList ->
+            wordList.forEach { println(it) }
+
+            if (wordList.isEmpty())
                 Toast.makeText(
                     requireContext(),
                     "Couldn't find any related words",
@@ -77,22 +80,17 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 ).show()
             else {
                 arrayAdapter =
-                    ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, it)
+                    ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, wordList)
                 binding.editorEditText.setAdapter(arrayAdapter)
                 binding.editorEditText.showDropDown()
             }
         }
 
+        editorRandomWordScreen =
+            EditorRandomWordScreen(requireContext(), binding, viewModel, viewLifecycleOwner)
+
         lifecycle.addObserver(fileHandler)
-    }
-
-
-    private fun onWordClickedListener() = object : TextViewWordMutator.OnWordClickedListener {
-        override fun onWordClick(word: String) {
-//            val checkedId = binding.include.editorRadioGroup.checkedRadioButtonId
-//            val type = requireActivity().findViewById<RadioButton>(checkedId).tag
-//            viewModel.query(word, type as DatamuseType)
-        }
+        lifecycle.addObserver(editorRandomWordScreen)
     }
 
     override fun onClick(clickedView: View?) {
@@ -121,14 +119,21 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             if (selectionStart < text.length) {
                 val word = text.selectWord(selectionStart)
                 val arguments = mapOf(
-                    "tags" to collectTags(),
-                    "word" to word,
-                    "word_picker_strategy" to PartOfSpeechWordSupplier.WordPickStrategyRandom()
+                    EditorViewModel.WORD to word,
+                    EditorViewModel.PART_OF_SPEECH_WORD_PICK_STRATEGY to PartOfSpeechWordSupplier.WordPickStrategyRandom(),
+                    getEditorMode()
                 )
                 viewModel.query(requireContext(), arguments)
             }
         }
     }
+
+    private fun getEditorMode(): Pair<String, Int> =
+        when (binding.bottomNavigation.selectedItemId) {
+            R.id.bottom_nav_first -> Pair(EDITOR_MODE, 0)
+            R.id.bottom_nav_second -> Pair(EDITOR_MODE, 1)
+            else -> throw UnsupportedOperationException("Navigation button not supported.")
+        }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -160,30 +165,13 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireContext().settingsDataStore.data.map { item ->
-            with(item)
-            {
-                println(item.chkboxAdj)
-            }
-        }
-    }
-
     override fun onFilteredTextChanged(word: String) {
         val arguments = mapOf(
-            "tags" to collectTags(),
-            "word" to word,
-            "word_picker_strategy" to PartOfSpeechWordSupplier.WordPickStrategyContainsName()
+            EditorViewModel.WORD to word,
+            EditorViewModel.PART_OF_SPEECH_WORD_PICK_STRATEGY to PartOfSpeechWordSupplier.WordPickStrategyContainsName(),
+            getEditorMode()
         )
         viewModel.query(requireContext(), arguments)
-    }
-
-    private fun collectTags(): List<*> {
-        return concatLists(
-//            filterCheckboxTags<DatamuseWordSupplier.Type>(binding.include.editorDatamuseGrid),
-//            filterCheckboxTags<POSWordSupplier.Type>(binding.include.editorPosWordGrid)
-        )
     }
 }
 
