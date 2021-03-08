@@ -102,13 +102,7 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             clickedView isWithId R.id.editor_edit_text -> {
                 onClickAutoCompleteEditText()
             }
-            clickedView isWithId R.id.editor_redo -> {
-                parentFragmentManager.findFragmentByTag(WORD_SETTINGS_FRAGMENT_TAG)
-                binding.contentTextview.redo()
-            }
-            clickedView isWithId R.id.editor_undo -> {
-                binding.contentTextview.undo()
-            }
+
         }
     }
 
