@@ -26,32 +26,28 @@ import com.ivo.ganev.awords.view.AutoCompleteEditText
 import com.ivo.ganev.awords.view.TextViewWordMutator
 import com.ivo.ganev.awords.io.FileHandler
 import com.ivo.ganev.awords.supplier.PartOfSpeechWordSupplier
+import com.ivo.ganev.awords.ui.main.EditorAutoCompleteScreen
 import com.ivo.ganev.awords.ui.main.EditorRandomWordScreen
 import com.ivo.ganev.awords.ui.main.fragments.EditorViewModel.QueryArgKeys.EDITOR_MODE
 import kotlinx.coroutines.flow.map
 
+private const val WORD_SETTINGS_FRAGMENT_TAG = "word_supplier_options"
+
 class EditorFragment : Fragment(R.layout.fragment_editor),
     View.OnClickListener,
-    BottomNavigationView.OnNavigationItemSelectedListener,
-    AutoCompleteEditText.OnFilteredTextChangeListener {
-
-    private val WORD_SETTINGS_FRAGMENT_TAG = "word_supplier_options"
-
-    private lateinit var viewModel: EditorViewModel
+    BottomNavigationView.OnNavigationItemSelectedListener {
 
     private val args: EditorFragmentArgs by navArgs()
+
+    private lateinit var viewModel: EditorViewModel
     private lateinit var binding: FragmentEditorBinding
     private lateinit var fileHandler: FileHandler
-    private lateinit var arrayAdapter: ArrayAdapter<String>
     private lateinit var editorRandomWordScreen: EditorRandomWordScreen
+    private lateinit var editorAutoCompleteScreen: EditorAutoCompleteScreen
     private lateinit var bottomSheetFragment: BottomSheetDialogFragment
-
-    private inline fun <reified T> filterCheckboxTags(viewGroup: ViewGroup): List<T> =
-        viewGroup.children.filterTickedCheckboxWithTag()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(
             this,
             EditorViewModelFactory(UserSettingsRepository.getInstance(requireContext()))
@@ -62,35 +58,18 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
 
         binding.apply {
             fileHandler = FileHandler(requireContext(), args.editorFragmentArgs, editorViewSwitcher)
-
             bottomNavigation.setOnNavigationItemSelectedListener(this@EditorFragment)
             editorExpandWordFetchers.setOnClickListener(this@EditorFragment)
-            editorEditText.onFilteredTextChangeListener = this@EditorFragment
-            editorEditText.setOnClickListener(this@EditorFragment)
-        }
-
-        viewModel.wordResults.observe(viewLifecycleOwner) { wordList ->
-            wordList.forEach { println(it) }
-
-            if (wordList.isEmpty())
-                Toast.makeText(
-                    requireContext(),
-                    "Couldn't find any related words",
-                    Toast.LENGTH_SHORT
-                ).show()
-            else {
-                arrayAdapter =
-                    ArrayAdapter(requireContext(), R.layout.dropdown_autocomplete, wordList)
-                binding.editorEditText.setAdapter(arrayAdapter)
-                binding.editorEditText.showDropDown()
-            }
         }
 
         editorRandomWordScreen =
             EditorRandomWordScreen(requireContext(), binding, viewModel, viewLifecycleOwner)
+        editorAutoCompleteScreen =
+            EditorAutoCompleteScreen(requireContext(), binding, viewModel, viewLifecycleOwner)
 
         lifecycle.addObserver(fileHandler)
         lifecycle.addObserver(editorRandomWordScreen)
+        lifecycle.addObserver(editorAutoCompleteScreen)
     }
 
     override fun onClick(clickedView: View?) {
@@ -98,36 +77,8 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
             clickedView isWithId R.id.editor_expand_word_fetchers -> {
                 bottomSheetFragment.show(parentFragmentManager, WORD_SETTINGS_FRAGMENT_TAG)
             }
-
-            clickedView isWithId R.id.editor_edit_text -> {
-                onClickAutoCompleteEditText()
-            }
-
         }
     }
-
-    private fun onClickAutoCompleteEditText() {
-        with(binding.editorEditText)
-        {
-            val text = text.toString()
-            if (selectionStart < text.length) {
-                val word = text.selectWord(selectionStart)
-                val arguments = mapOf(
-                    EditorViewModel.WORD to word,
-                    EditorViewModel.PART_OF_SPEECH_WORD_PICK_STRATEGY to PartOfSpeechWordSupplier.WordPickStrategyRandom(),
-                    getEditorMode()
-                )
-                viewModel.query(requireContext(), arguments)
-            }
-        }
-    }
-
-    private fun getEditorMode(): Pair<String, Int> =
-        when (binding.bottomNavigation.selectedItemId) {
-            R.id.bottom_nav_first -> Pair(EDITOR_MODE, 0)
-            R.id.bottom_nav_second -> Pair(EDITOR_MODE, 1)
-            else -> throw UnsupportedOperationException("Navigation button not supported.")
-        }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -157,15 +108,6 @@ class EditorFragment : Fragment(R.layout.fragment_editor),
                 startAnimation(animation)
             }
         }
-    }
-
-    override fun onFilteredTextChanged(word: String) {
-        val arguments = mapOf(
-            EditorViewModel.WORD to word,
-            EditorViewModel.PART_OF_SPEECH_WORD_PICK_STRATEGY to PartOfSpeechWordSupplier.WordPickStrategyContainsName(),
-            getEditorMode()
-        )
-        viewModel.query(requireContext(), arguments)
     }
 }
 
