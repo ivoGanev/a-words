@@ -1,6 +1,9 @@
 # A-Words (Altered Words)
 ![alt-text](etc/21421412.gif)
 
-This is still WIP.
 
-Assistive writing app that can auto-complete words with, for example, synonyms, antonyms, rhymes, etc., and replace tapped words with random ones that are part of speech.
+### Project Goal
+
+Assistive writing app that can auto-complete words or randomize them with, for example, synonyms, antonyms, parts of speech, etc.,
+
+This is still work in progress.
