@@ -10,6 +10,7 @@ import com.ivo.ganev.awords.EditorFragmentArguments
 import com.ivo.ganev.awords.view.ViewSwitcherEditorText
 import timber.log.Timber
 import java.io.*
+import javax.inject.Inject
 
 interface FileSaver {
     fun save()

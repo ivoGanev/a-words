@@ -21,36 +21,6 @@ class PartOfSpeechWordSupplier(val coroutineScope: CoroutineScope) :
 
     data class FileInfo(val fileName: String, val jsonArray: String)
 
-//    enum class Type {
-//        SpeechPart.NOUN {
-//            override val fileName: String
-//            get() = "nouns.json"
-//            override val jsonArrayName: String
-//            get() = "nouns"
-//        },
-//        ADJECTIVE {
-//            override val fileName: String
-//                get() = "adjs.json"
-//            override val jsonArrayName: String
-//                get() = "adjs"
-//        },
-//        ADVERB {
-//            override val fileName: String
-//                get() = "adverbs.json"
-//            override val jsonArrayName: String
-//                get() = "adverbs"
-//        },
-//        VERB {
-//            override val fileName: String
-//                get() = "verbs.json"
-//            override val jsonArrayName: String
-//                get() = "verbs"
-//        };
-
-//        abstract val fileName: String
-//        abstract val jsonArrayName: String
-//    }
-
     override fun process(
         context: Context,
         payload: Any,
@@ -63,9 +33,9 @@ class PartOfSpeechWordSupplier(val coroutineScope: CoroutineScope) :
         //  a word selector will pick a list with all the words starting with 'a'
         //  and a word filter should choose which words will remain. For now a
         //  filter with randomized fashion will suffice.
-        for (wordType in standardPayload.fileInfo) {
-            val json = context.openJsonAsset(wordType.fileName)
-            val wordArray = JSONObject(json).getJSONArray(wordType.jsonArray)
+        for ((fileName, jsonArray) in standardPayload.fileInfo) {
+            val json = context.openJsonAsset(fileName)
+            val wordArray = JSONObject(json).getJSONArray(jsonArray)
             val words = standardPayload.wordPickStrategy.pick(wordArray, standardPayload.word)
             merge.addAll(words)
         }
@@ -90,7 +60,7 @@ class PartOfSpeechWordSupplier(val coroutineScope: CoroutineScope) :
                             result.add(it.getString(i))
                     }
                 }
-                Timber.d(result.count().toString())
+                Timber.d(result.size.toString())
             }
             return result
         }
